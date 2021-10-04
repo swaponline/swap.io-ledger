@@ -1,0 +1,16 @@
+.idea
+.vscode
+.env.development
+.env.production
+.env
+
+.env.yaml
+.env.production.yaml
+.env.development.yaml
+
+deploy.sh
+
+/blockchainIndexes
+/subscriptions
+swap.io-ledger
+swap.io-ledger-image.tar
