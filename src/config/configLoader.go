@@ -9,7 +9,7 @@ var POSTGRESS_URL string
 var AGENTS []struct{
 	Network  string `mapstructure:"network"`
     BaseUrl  string `mapstructure:"baseUrl"`
-    Apikey   string `mapstructure:"apiKey"`
+    ApiKey   string `mapstructure:"apiKey"`
 }
 
 func InitializeConfig() {

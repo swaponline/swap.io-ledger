@@ -4,6 +4,8 @@ import (
 	"log"
     "net/url"
     "encoding/json"
+    "context"
+    "fmt"
 
     "github.com/gorilla/websocket"
 )
@@ -32,7 +34,6 @@ func InitialiseAgentHandler(config Config) *AgentHandler {
 		txIsReceive: make(<-chan struct{}),
 		isSync:      make(<-chan struct{}),
 	}
-    defer close(handler.txs)
 
     go func() {
         for {
@@ -44,8 +45,16 @@ func InitialiseAgentHandler(config Config) *AgentHandler {
 }
 
 func (a *AgentHandler) run() {
-    u := url.URL{Scheme: "ws", Host: a.baseUrl, Path: "/ws"}
-    c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+    u := url.URL{
+        Scheme: "ws",
+        Host: a.baseUrl,
+        Path: "/ws",
+        RawQuery: fmt.Sprintf("token=%v", a.apiKey),
+    }
+    c, _, err := websocket.DefaultDialer.Dial(
+        u.String(),
+        nil,
+    )
     if err != nil {
         log.Panicln(err)
     }
@@ -60,29 +69,31 @@ func (a *AgentHandler) run() {
     //    return nil
     //})
 
-    done := make(chan struct{})
-    defer close(done)
-
+    connectIsDeactive, deactive := context.WithCancel(context.Background())
     go func() {
-        loop: for {
+        for {
             select {
             case <- a.txIsReceive: {
                 err := c.WriteMessage(websocket.TextMessage, []byte{})
                 if err != nil {
                     log.Println("ERROR:", err)
+                    deactive()
+                    return
                 }
             }
-            default: {
-                break loop
+            case <-connectIsDeactive.Done(): {
+                return
             }
             }
         }
     }()
 
-    loop: for {
+    for {
         _, msg, err := c.ReadMessage()
         if err != nil {
             log.Println("ERROR:", err)
+            deactive()
+            return
         }
 
         var tx *Transaction
@@ -92,8 +103,8 @@ func (a *AgentHandler) run() {
         }
 
         select {
-        case a.txs <- tx: continue loop
-        default: break loop
+        case a.txs <- tx: continue
+        case <-connectIsDeactive.Done(): return
         }
     }
 }
