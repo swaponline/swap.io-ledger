@@ -65,25 +65,21 @@ func (a *AgentHandler) run() {
         a.baseUrl,
     )
 
-    //c.SetPingHandler(func(data string) error {
-    //    return nil
-    //})
-
     connectIsDeactive, deactive := context.WithCancel(context.Background())
     go func() {
         for {
             select {
-            case <- a.txIsReceive: {
-                err := c.WriteMessage(websocket.TextMessage, []byte{})
-                if err != nil {
-                    log.Println("ERROR:", err)
-                    deactive()
-                    return
+            case <- a.txIsReceive:
+                {
+                    err := c.WriteMessage(websocket.TextMessage, []byte{})
+                    if err != nil {
+                        log.Println("ERROR:", err)
+                        deactive()
+                        return
+                    }
                 }
-            }
-            case <-connectIsDeactive.Done(): {
+            case <-connectIsDeactive.Done():
                 return
-            }
             }
         }
     }()
@@ -103,8 +99,10 @@ func (a *AgentHandler) run() {
         }
 
         select {
-        case a.txs <- tx: continue
-        case <-connectIsDeactive.Done(): return
+        case a.txs <- tx:
+            continue
+        case <-connectIsDeactive.Done():
+            return
         }
     }
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+var SECRET_TOKEN string
 var POSTGRESS_URL string
 var AGENTS []struct{
 	Network  string `mapstructure:"network"`
@@ -31,5 +32,12 @@ func InitializeConfig() {
 	}
 	if len(POSTGRESS_URL) == 0 {
 		log.Panicln("ERROR set postgres url(postgres.url) in env")
+	}
+
+	if err = cfgReader.UnmarshalKey("secret_token", &SECRET_TOKEN); err != nil {
+		log.Panicln(err)
+	}
+	if len(SECRET_TOKEN) == 0 {
+		log.Panicln("ERROR set secret_token in env")
 	}
 }
