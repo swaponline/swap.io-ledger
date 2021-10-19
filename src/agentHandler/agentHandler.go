@@ -1,22 +1,22 @@
 package agentHandler
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"log"
-    "net/url"
-    "encoding/json"
-    "context"
-    "fmt"
+	"net/url"
 
-    "github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type AgentHandler struct {
 	network     string
 	baseUrl     string
 	apiKey      string
-	txs         chan<- *Transaction
-	txIsReceive <-chan struct{}
-	isSync      <-chan struct{}
+	TxsSource   chan *Transaction
+	TxIsReceive chan struct{}
+	isSync      chan struct{}
 }
 
 type Config struct {
@@ -30,9 +30,9 @@ func InitialiseAgentHandler(config Config) *AgentHandler {
 		network:     config.Network,
 		baseUrl:     config.BaseUrl,
 		apiKey:      config.ApiKey,
-		txs:         make(chan<- *Transaction),
-		txIsReceive: make(<-chan struct{}),
-		isSync:      make(<-chan struct{}),
+		TxsSource:         make(chan *Transaction),
+		TxIsReceive: make(chan struct{}),
+		isSync:      make(chan struct{}),
 	}
 
     go func() {
@@ -69,7 +69,7 @@ func (a *AgentHandler) run() {
     go func() {
         for {
             select {
-            case <- a.txIsReceive:
+            case <- a.TxIsReceive:
                 {
                     err := c.WriteMessage(websocket.TextMessage, []byte{})
                     if err != nil {
@@ -99,10 +99,18 @@ func (a *AgentHandler) run() {
         }
 
         select {
-        case a.txs <- tx:
+        case a.TxsSource <- tx:
             continue
         case <-connectIsDeactive.Done():
             return
         }
     }
+}
+
+func (*AgentHandler) Start() {}
+func (*AgentHandler) Status() error {
+    return nil
+}
+func (*AgentHandler) Stop() error {
+    return nil
 }

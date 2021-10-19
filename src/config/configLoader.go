@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+var PORT string
 var SECRET_TOKEN string
 var POSTGRESS_URL string
 var AGENTS []struct{
@@ -23,6 +24,14 @@ func InitializeConfig() {
 		log.Panicln(err)
 	}
 
+    if err = cfgReader.UnmarshalKey("port", &PORT); err != nil {
+        log.Panicln(err)
+    }
+
+    if err = cfgReader.UnmarshalKey("secret_token", &SECRET_TOKEN); err != nil {
+		log.Panicln(err)
+	}
+
 	if err = cfgReader.UnmarshalKey("agents", &AGENTS); err != nil {
 		log.Panicln(err)
 	}
@@ -34,9 +43,6 @@ func InitializeConfig() {
 		log.Panicln("ERROR set postgres url(postgres.url) in env")
 	}
 
-	if err = cfgReader.UnmarshalKey("secret_token", &SECRET_TOKEN); err != nil {
-		log.Panicln(err)
-	}
 	if len(SECRET_TOKEN) == 0 {
 		log.Panicln("ERROR set secret_token in env")
 	}

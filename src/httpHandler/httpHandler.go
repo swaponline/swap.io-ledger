@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"swap.io-agent/src/config"
+	"swap.io-ledger/src/config"
 )
 
 type HttpHandler struct {
