@@ -29,6 +29,7 @@ func InitialiseTxsHandler(config Config) *TxsHandler {
         network: config.Network,
         txSource: config.TxSource,
         txIsReceive: config.TxIsReceive,
+        database: config.Database,
         realtimeTxs: make(chan *agentHandler.Transaction),
     }
 }
