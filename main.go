@@ -1,6 +1,7 @@
 package main
 
 import (
+  "swap.io-ledger/src/managers/UsersManager"
 	"swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/config"
 	"swap.io-ledger/src/database"
@@ -8,7 +9,6 @@ import (
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/socketServer"
 	"swap.io-ledger/src/txsHandler"
-	"swap.io-ledger/src/usersManager"
 )
 
 func main() {
@@ -21,8 +21,8 @@ func main() {
         database,
     )
 
-    usersManager := usersManager.InitialiseUsersManager(
-        usersManager.Config{},
+    usersManager := UsersManager.InitialiseUsersManager(
+        UsersManager.Config{},
     )
     registry.RegisterService(usersManager)
 

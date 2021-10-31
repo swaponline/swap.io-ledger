@@ -2,11 +2,11 @@ package txsHandler
 
 import (
     "log"
+    "swap.io-ledger/src/managers/UsersManager"
     "time"
 
     "swap.io-ledger/src/agentHandler"
     "swap.io-ledger/src/database"
-    "swap.io-ledger/src/usersManager"
 )
 
 type TxsHandler struct {
@@ -21,7 +21,7 @@ type Config struct {
     TxSource chan *agentHandler.Transaction
     TxIsReceive chan struct{}
     Database *database.Database
-    UsersManager *usersManager.UsersManager
+    UsersManager *UsersManager.UsersManager
 }
 
 func InitialiseTxsHandler(config Config) *TxsHandler {
@@ -37,7 +37,7 @@ func InitialiseTxsHandler(config Config) *TxsHandler {
 func (t *TxsHandler) Start() {
     for {
         tx := <-t.txSource
-        for err := t.database.SaveTx(tx); err != nil; {
+        for err := t.database.TxCreate(tx); err != nil; {
             <-time.After(time.Second)
         }
         t.txIsReceive <- struct{}{}
