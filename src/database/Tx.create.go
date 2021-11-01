@@ -6,7 +6,7 @@ import (
 	"swap.io-ledger/src/agentHandler"
 )
 
-func (d *Database) TxCreate(tx *agentHandler.Transaction) error {
+func (d *Database) TxCreate(tx *agentHandler.AgentTx) error {
 	if saveData, err := json.Marshal(tx); err == nil {
 		_, err := d.conn.Exec(
 			context.Background(),

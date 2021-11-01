@@ -11,14 +11,14 @@ import (
 
 type TxsHandler struct {
     network string
-    txSource    chan *agentHandler.Transaction
+    txSource    chan *agentHandler.AgentTx
     txIsReceive chan struct{}
-    realtimeTxs chan *agentHandler.Transaction
+    realtimeTxs chan *agentHandler.AgentTx
     database *database.Database
 }
 type Config struct {
     Network string
-    TxSource chan *agentHandler.Transaction
+    TxSource chan *agentHandler.AgentTx
     TxIsReceive chan struct{}
     Database *database.Database
     UsersManager *UsersManager.UsersManager
@@ -30,7 +30,7 @@ func InitialiseTxsHandler(config Config) *TxsHandler {
         txSource: config.TxSource,
         txIsReceive: config.TxIsReceive,
         database: config.Database,
-        realtimeTxs: make(chan *agentHandler.Transaction),
+        realtimeTxs: make(chan *agentHandler.AgentTx),
     }
 }
 

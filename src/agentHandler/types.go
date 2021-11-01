@@ -1,6 +1,6 @@
 package agentHandler
 
-type Transaction struct {
+type AgentTx struct {
 	Hash              string       `json:"hash"`
 	Journal           []SpendsInfo `json:"journal"`
 	AllSpendAddresses []string

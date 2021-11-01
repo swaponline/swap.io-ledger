@@ -2,12 +2,11 @@ package database
 
 import (
 	"context"
-	"swap.io-ledger/src/managers/UsersAdressesManager"
 )
 
 func (d *Database) UsersAddressesGetByAddress(
 	address string,
-) (*UsersAdressesManager.UserAddress, error) {
+) (*UserAddress, error) {
 	rowData := d.conn.QueryRow(
 		context.Background(),
 		`select 
@@ -18,7 +17,7 @@ func (d *Database) UsersAddressesGetByAddress(
 		from "Users_addresses" where address = $1`,
 		address,
 	)
-	userAddress := new(UsersAdressesManager.UserAddress)
+	userAddress := new(UserAddress)
 	err := rowData.Scan(
 		&userAddress.Id,
 		&userAddress.CoinId,

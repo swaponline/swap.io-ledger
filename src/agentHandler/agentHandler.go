@@ -14,7 +14,7 @@ type AgentHandler struct {
 	network     string
 	baseUrl     string
 	apiKey      string
-	TxsSource   chan *Transaction
+	TxsSource   chan *AgentTx
 	TxIsReceive chan struct{}
 	isSync      chan struct{}
 }
@@ -30,7 +30,7 @@ func InitialiseAgentHandler(config Config) *AgentHandler {
 		network:     config.Network,
 		baseUrl:     config.BaseUrl,
 		apiKey:      config.ApiKey,
-		TxsSource:         make(chan *Transaction),
+		TxsSource:         make(chan *AgentTx),
 		TxIsReceive: make(chan struct{}),
 		isSync:      make(chan struct{}),
 	}
@@ -65,7 +65,7 @@ func (a *AgentHandler) run() {
         a.baseUrl,
     )
 
-    connectIsDeactive, deactive := context.WithCancel(context.Background())
+    connectIsDeactivate, deactivate := context.WithCancel(context.Background())
     go func() {
         for {
             select {
@@ -74,11 +74,11 @@ func (a *AgentHandler) run() {
                     err := c.WriteMessage(websocket.TextMessage, []byte{})
                     if err != nil {
                         log.Println("ERROR:", err)
-                        deactive()
+                        deactivate()
                         return
                     }
                 }
-            case <-connectIsDeactive.Done():
+            case <-connectIsDeactivate.Done():
                 return
             }
         }
@@ -88,11 +88,11 @@ func (a *AgentHandler) run() {
         _, msg, err := c.ReadMessage()
         if err != nil {
             log.Println("ERROR:", err)
-            deactive()
+            deactivate()
             return
         }
 
-        var tx *Transaction
+        var tx *AgentTx
         if err := json.Unmarshal(msg,&tx); err != nil {
             log.Println("ERROR:", err)
             continue
@@ -101,7 +101,7 @@ func (a *AgentHandler) run() {
         select {
         case a.TxsSource <- tx:
             continue
-        case <-connectIsDeactive.Done():
+        case <-connectIsDeactivate.Done():
             return
         }
     }

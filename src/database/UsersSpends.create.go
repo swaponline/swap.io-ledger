@@ -2,7 +2,7 @@ package database
 
 import "context"
 
-func (d *Database) UsersBalancesCreate(
+func (d *Database) UsersSpendsCreate(
 	txId int,
 	txWiringIndex int,
 	userAddressId int,
@@ -10,7 +10,7 @@ func (d *Database) UsersBalancesCreate(
 ) error  {
 	_, err := d.conn.Exec(
 		context.Background(),
-		`insert into "Users_balances" 
+		`insert into "Users_spends" 
 			(tx_id, tx_wiring_index, user_address_id, value)
 			values ($1, $2, $3, $4)
 		`,

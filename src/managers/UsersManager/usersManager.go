@@ -3,10 +3,10 @@ package UsersManager
 import "swap.io-ledger/src/database"
 
 type UsersManager struct {
-    database database.Database
+    database *database.Database
 }
 type Config struct {
-    Database database.Database
+    Database *database.Database
 }
 
 func InitialiseUsersManager(config Config) *UsersManager {

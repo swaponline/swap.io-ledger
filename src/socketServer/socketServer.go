@@ -11,7 +11,7 @@ import (
 )
 
 type SocketServer struct {
-    txSource <-chan *agentHandler.Transaction
+    txSource <-chan *agentHandler.AgentTx
 }
 
 type Config struct {
