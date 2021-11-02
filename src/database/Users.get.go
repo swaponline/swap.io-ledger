@@ -5,19 +5,15 @@ import (
 )
 
 func (d *Database) UsersGetById(id int) (*User, error) {
-	rowData := d.conn.QueryRow(
+	user := new(User)
+	err := d.conn.QueryRow(
 		context.Background(),
 		`select id, pub_key from "Users" where id = $1`,
 		id,
-	)
-	user := new(User)
-	err := rowData.Scan(
+	).Scan(
 		&user.Id,
 		&user.PubKey,
 	)
-	if err != nil {
-		return nil, err
-	}
 
-	return user, nil
+	return user, err
 }

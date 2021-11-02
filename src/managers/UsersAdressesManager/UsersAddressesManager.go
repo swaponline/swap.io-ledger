@@ -14,3 +14,11 @@ func InitialiseUsersAddress(config Config) *UsersAddressesManager {
 		database: config.Database,
 	}
 }
+
+func (*UsersAddressesManager) Start() {}
+func (*UsersAddressesManager) Status() error {
+	return nil
+}
+func (*UsersAddressesManager) Stop() error {
+	return nil
+}

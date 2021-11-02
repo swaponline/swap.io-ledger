@@ -7,19 +7,15 @@ import (
 func (d *Database) CoinGetByName(
 	name string,
 ) (*Coin, error) {
-	rowData := d.conn.QueryRow(
+	coin := new(Coin)
+	err := d.conn.QueryRow(
 		context.Background(),
 		`select id, name from "Coin" where name = $1`,
 		name,
-	)
-	coin := new(Coin)
-	err := rowData.Scan(
+	).Scan(
 		&coin.Id,
 		&coin.Name,
 	)
-	if err != nil {
-		return nil, err
-	}
 
 	return coin, err
 }

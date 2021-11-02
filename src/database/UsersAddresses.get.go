@@ -7,7 +7,8 @@ import (
 func (d *Database) UsersAddressesGetByAddress(
 	address string,
 ) (*UserAddress, error) {
-	rowData := d.conn.QueryRow(
+	userAddress := new(UserAddress)
+	err := d.conn.QueryRow(
 		context.Background(),
 		`select 
 			id,
@@ -16,17 +17,12 @@ func (d *Database) UsersAddressesGetByAddress(
 			address
 		from "Users_addresses" where address = $1`,
 		address,
-	)
-	userAddress := new(UserAddress)
-	err := rowData.Scan(
+	).Scan(
 		&userAddress.Id,
 		&userAddress.CoinId,
 		&userAddress.UserId,
 		&userAddress.Address,
 	)
-	if err != nil {
-		return nil, err
-	}
 
-	return nil, err
+	return userAddress, err
 }

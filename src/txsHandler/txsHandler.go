@@ -1,47 +1,65 @@
 package txsHandler
 
 import (
+    "encoding/json"
     "log"
-    "swap.io-ledger/src/managers/UsersManager"
-    "time"
-
     "swap.io-ledger/src/agentHandler"
-    "swap.io-ledger/src/database"
+    "swap.io-ledger/src/managers/TxsManager"
+    "swap.io-ledger/src/managers/UsersAdressesManager"
+    "swap.io-ledger/src/managers/UsersSpendsManager"
 )
 
 type TxsHandler struct {
     network string
-    txSource    chan *agentHandler.AgentTx
-    txIsReceive chan struct{}
+    aTxSource    chan *agentHandler.AgentTx
+    aTxIsReceive chan struct{}
     realtimeTxs chan *agentHandler.AgentTx
-    database *database.Database
+    txsManager            *TxsManager.TxsManager
+    usersAddressesManager *UsersAdressesManager.UsersAddressesManager
+    usersSpendsManager    *UsersSpendsManager.UsersSpendsManager
 }
 type Config struct {
     Network string
-    TxSource chan *agentHandler.AgentTx
-    TxIsReceive chan struct{}
-    Database *database.Database
-    UsersManager *UsersManager.UsersManager
+    aTxSource chan *agentHandler.AgentTx
+    aTxIsReceive chan struct{}
+    TxsManager            *TxsManager.TxsManager
+    UsersAddressesManager *UsersAdressesManager.UsersAddressesManager
+    UsersSpendsManager    *UsersSpendsManager.UsersSpendsManager
 }
 
 func InitialiseTxsHandler(config Config) *TxsHandler {
     return &TxsHandler{
         network: config.Network,
-        txSource: config.TxSource,
-        txIsReceive: config.TxIsReceive,
-        database: config.Database,
+        aTxSource: config.aTxSource,
+        aTxIsReceive: config.aTxIsReceive,
         realtimeTxs: make(chan *agentHandler.AgentTx),
     }
 }
 
 func (t *TxsHandler) Start() {
+    // todo: handle all errors
     for {
-        tx := <-t.txSource
-        for err := t.database.TxCreate(tx); err != nil; {
-            <-time.After(time.Second)
+        aTx := <-t.aTxSource
+
+        aTxData, err := json.Marshal(aTx)
+        if err != nil {
+            t.aTxIsReceive <- struct{}{}
+            continue
         }
-        t.txIsReceive <- struct{}{}
-        log.Println("receive", tx.Hash)
+
+        tx, err := t.txsManager.CreateTx(
+            aTx.Hash,
+            string(aTxData),
+        )
+        if err != nil {
+            t.aTxIsReceive <- struct{}{}
+            continue
+        }
+
+        //aTx.Journal
+
+        t.aTxIsReceive <- struct{}{}
+        log.Println("receive", aTx.Hash)
         //t.realtimeTxs <- tx
     }
 }
