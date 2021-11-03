@@ -5,7 +5,7 @@ func (usm *UsersSpendsManager) CreateUserSpend(
 ) error {
 	return usm.database.UsersSpendsCreate(
 		data.TxId,
-		data.TxWiringIndex,
+		data.TxSpendIndex,
 		data.UsersAddressId,
 		data.Value,
 	)

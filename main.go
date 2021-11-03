@@ -1,14 +1,14 @@
 package main
 
 import (
-  "swap.io-ledger/src/managers/UsersManager"
-	"swap.io-ledger/src/agentHandler"
-	"swap.io-ledger/src/config"
-	"swap.io-ledger/src/database"
-	"swap.io-ledger/src/httpHandler"
-	"swap.io-ledger/src/serviceRegistry"
-	"swap.io-ledger/src/socketServer"
-	"swap.io-ledger/src/txsHandler"
+    "swap.io-ledger/src/agentHandler"
+    "swap.io-ledger/src/config"
+    "swap.io-ledger/src/database"
+    "swap.io-ledger/src/httpHandler"
+    "swap.io-ledger/src/managers/UsersManager"
+    "swap.io-ledger/src/serviceRegistry"
+    "swap.io-ledger/src/socketServer"
+    "swap.io-ledger/src/txsHandler"
 )
 
 func main() {
@@ -41,10 +41,9 @@ func main() {
     txsHandler := txsHandler.InitialiseTxsHandler(
         txsHandler.Config{
             Network: hsd.Network,
-            TxSource: agentHandler.TxsSource,
-            TxIsReceive: agentHandler.TxIsReceive,
-            Database: database,
-            UsersManager: usersManager,
+            ATxSource: agentHandler.TxsSource,
+            ATxIsReceive: agentHandler.TxIsReceive,
+            //todo: add handlers
         },
     )
     registry.RegisterService(

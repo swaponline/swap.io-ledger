@@ -2,7 +2,7 @@ package UsersSpendsManager
 
 type CreateUserSpendData struct {
 	TxId int
-	TxWiringIndex int
+	TxSpendIndex int
 	UsersAddressId int
 	Value int
 }

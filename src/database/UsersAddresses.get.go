@@ -4,7 +4,8 @@ import (
 	"context"
 )
 
-func (d *Database) UsersAddressesGetByAddress(
+func (d *Database) UsersAddressesGetByCoinIdAndAddress(
+	coinId int,
 	address string,
 ) (*UserAddress, error) {
 	userAddress := new(UserAddress)
@@ -15,8 +16,8 @@ func (d *Database) UsersAddressesGetByAddress(
 			coin_id,
 			user_id,
 			address
-		from "Users_addresses" where address = $1`,
-		address,
+		from "Users_addresses" where coin_id = $1 and address = $2`,
+		coinId, address,
 	).Scan(
 		&userAddress.Id,
 		&userAddress.CoinId,
