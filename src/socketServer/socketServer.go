@@ -3,6 +3,7 @@ package socketServer
 import (
 	"log"
 	"net/http"
+	"swap.io-ledger/src/database"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -11,7 +12,7 @@ import (
 )
 
 type SocketServer struct {
-    txSource <-chan *agentHandler.AgentTx
+    txSource <-chan *database.Tx
 }
 
 type Config struct {

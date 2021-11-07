@@ -1,6 +1,10 @@
 package CoinsManager
 
-import "swap.io-ledger/src/database"
+import (
+	"log"
+	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/serviceRegistry"
+)
 
 type CoinsManager struct {
 	database *database.Database
@@ -14,11 +18,24 @@ func InitialiseCoinsManager(config Config) *CoinsManager {
 		database: config.Database,
 	}
 }
+func Register(reg *serviceRegistry.ServiceRegistry) {
+	var database *database.Database
+	err := reg.FetchService(&database)
+	if err != nil {
+		log.Panicln(err)
+	}
 
-func (*Config) Start() {}
-func (*Config) Status() error {
+	err = reg.RegisterService(
+		InitialiseCoinsManager(Config{
+			Database: database,
+		}),
+	)
+}
+
+func (*CoinsManager) Start() {}
+func (*CoinsManager) Status() error {
 	return nil
 }
-func (*Config) Stop() error {
+func (*CoinsManager) Stop() error {
 	return nil
 }

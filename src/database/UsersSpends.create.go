@@ -6,7 +6,7 @@ func (d *Database) UsersSpendsCreate(
 	txId int,
 	txSpendIndex int,
 	userAddressId int,
-	value int,
+	value string,
 ) error  {
 	_, err := d.conn.Exec(
 		context.Background(),

@@ -4,5 +4,5 @@ type CreateUserSpendData struct {
 	TxId int
 	TxSpendIndex int
 	UsersAddressId int
-	Value int
+	Value string
 }

@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
-	"log"
-
+	"github.com/jackc/pgtype"
+	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 	"github.com/jackc/pgx/v4"
+	"log"
 	"swap.io-ledger/src/config"
 )
 
@@ -17,6 +18,11 @@ func InitialiseDatabase() *Database {
     if err != nil {
         log.Panicln(err)
     }
+	conn.ConnInfo().RegisterDataType(pgtype.DataType{
+		Value: &shopspring.Numeric{},
+		Name:  "numeric",
+		OID:   pgtype.NumericOID,
+	})
 
     return &Database{
         conn: conn,

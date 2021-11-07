@@ -10,7 +10,7 @@ func (d *Database) UsersCreate (
 )  {
 	_, err := d.conn.Exec(
 		context.Background(),
-		"INSERT INTO Users (pub_key) values($1)",
+		`INSERT INTO "Users" (pub_key) values($1)`,
 		pubKey,
 	)
 	log.Println(err)

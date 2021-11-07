@@ -1,6 +1,10 @@
 package TxsManager
 
-import "swap.io-ledger/src/database"
+import (
+	"log"
+	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/serviceRegistry"
+)
 
 type TxsManager struct {
 	database *database.Database
@@ -13,6 +17,19 @@ func InitialiseTxsManager(config Config) *TxsManager {
 	return &TxsManager{
 		database: config.Database,
 	}
+}
+func Register(reg *serviceRegistry.ServiceRegistry) {
+	var database *database.Database
+	err := reg.FetchService(&database)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	err = reg.RegisterService(
+		InitialiseTxsManager(Config{
+			Database: database,
+		}),
+	)
 }
 
 func (*TxsManager) Start() {}

@@ -1,6 +1,10 @@
 package UsersSpendsManager
 
-import "swap.io-ledger/src/database"
+import (
+	"log"
+	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/serviceRegistry"
+)
 
 type UsersSpendsManager struct {
 	database *database.Database
@@ -13,6 +17,19 @@ func InitialiseUsersSpendsManager(config Config) *UsersSpendsManager {
 	return &UsersSpendsManager{
 		database: config.Database,
 	}
+}
+func Register(reg *serviceRegistry.ServiceRegistry) {
+	var database *database.Database
+	err := reg.FetchService(&database)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	err = reg.RegisterService(
+		InitialiseUsersSpendsManager(Config{
+			Database: database,
+		}),
+	)
 }
 
 func (*UsersSpendsManager) Start() {}

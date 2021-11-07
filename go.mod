@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/btcsuite/btcutil v1.0.2 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/jackc/pgtype v1.8.1 // indirect
 	github.com/jackc/pgx/v4 v4.13.0 // indirect
 	github.com/lestrrat-go/codegen v1.0.2 // indirect
 	github.com/lestrrat-go/jwx v1.2.8 // indirect

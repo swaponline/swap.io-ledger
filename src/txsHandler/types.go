@@ -1,6 +1,6 @@
-package agentHandler
+package txsHandler
 
-type AgentTx struct {
+type NonHandledTx struct {
 	Hash              string       `json:"hash"`
 	Journal           []SpendsInfo `json:"journal"`
 	AllSpendAddresses []string

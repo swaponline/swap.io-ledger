@@ -10,7 +10,7 @@ func (d *Database) CoinGetByName(
 	coin := new(Coin)
 	err := d.conn.QueryRow(
 		context.Background(),
-		`select id, name from "Coin" where name = $1`,
+		`select id, name from "Coins" where name = $1`,
 		name,
 	).Scan(
 		&coin.Id,
