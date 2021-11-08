@@ -25,3 +25,8 @@ type UserSpend struct {
 	UserAddressId int
 	Value int
 }
+type AddressSyncStatus struct {
+	AddressId int
+	Sync int
+	Cursor string
+}
