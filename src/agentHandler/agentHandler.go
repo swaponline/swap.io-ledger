@@ -1,15 +1,10 @@
 package agentHandler
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
-	"net/url"
 	"swap.io-ledger/src/database"
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/txsHandler"
-
-	"github.com/gorilla/websocket"
 )
 
 type AgentHandler struct {
@@ -62,58 +57,9 @@ func Register(
 	return err
 }
 
-func (a *AgentHandler) run() {
-    u := url.URL{
-        Scheme: "ws",
-        Host: a.baseUrl,
-        Path: "/ws",
-        RawQuery: fmt.Sprintf("token=%v", a.apiKey),
-    }
-    c, _, err := websocket.DefaultDialer.Dial(
-        u.String(),
-        nil,
-    )
-    if err != nil {
-        log.Panicln(err)
-    }
-    defer c.Close()
-
-    log.Printf(
-        "connected agent(network:%v|baseUrl:%v)",
-        a.network,
-        a.baseUrl,
-    )
-
-    for {
-        _, msg, err := c.ReadMessage()
-        if err != nil {
-            log.Println("ERROR:", err)
-            return
-        }
-
-        var aTx txsHandler.NonHandledTx
-        if err := json.Unmarshal(msg,&aTx); err != nil {
-            log.Println("ERROR:", err)
-            continue
-        }
-		log.Println("on tx", aTx.Hash)
-
-		tx := a.txsHandler.TxHandle(&aTx)
-
-		err = c.WriteMessage(websocket.TextMessage, []byte{})
-		if err != nil {
-			log.Println("ERROR:", err)
-			break
-		}
-		log.Println("tx receive", tx.Id, aTx.Hash)
-
-		//a.TxsSource <- tx
-    }
-}
-
 func (a *AgentHandler) Start() {
 	for {
-		a.run()
+		a.runWatch()
 	}
 }
 func (*AgentHandler) Status() error {

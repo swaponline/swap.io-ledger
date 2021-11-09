@@ -2,7 +2,7 @@ package database
 
 import "context"
 
-func (d *Database) AddressSyncStatusGetNotSync() ([]AddressSyncStatus, error) {
+func (d *Database) AddressSyncStatusGetNotSyncAddresses() ([]AddressSyncStatus, error) {
 	statusesRows, err := d.conn.Query(
 		context.Background(),
 		`select address_id, sync, cursor from "Address_sync_status" where sync = 0`,

@@ -6,6 +6,7 @@ import (
     "swap.io-ledger/src/config"
     "swap.io-ledger/src/database"
     "swap.io-ledger/src/httpHandler"
+    "swap.io-ledger/src/managers/AddressSyncStatusManager"
     "swap.io-ledger/src/managers/CoinsManager"
     "swap.io-ledger/src/managers/TxsManager"
     "swap.io-ledger/src/managers/UsersAdressesManager"
@@ -34,6 +35,7 @@ func main() {
     UsersManager.Register(registry)
     UsersAdressesManager.Register(registry)
     UsersSpendsManager.Register(registry)
+    AddressSyncStatusManager.Register(registry)
 
     txsHandler.Register(registry)
 
