@@ -5,6 +5,10 @@ type Tx struct {
 	Hash string
 	Data string
 }
+type Network struct {
+	Id int
+	Name string
+}
 type Coin struct {
 	Id int
 	Name string
