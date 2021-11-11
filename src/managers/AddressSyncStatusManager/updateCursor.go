@@ -1,6 +1,6 @@
 package AddressSyncStatusManager
 
-func (assm *AddressSyncStatusManager) updateCursor(
+func (assm *AddressSyncStatusManager) UpdateCursor(
 	addressId int,
 	cursor string,
 ) error {

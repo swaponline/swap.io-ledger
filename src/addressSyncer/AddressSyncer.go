@@ -4,26 +4,30 @@ import (
 	"log"
 	"swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/managers/AddressSyncStatusManager"
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/txsHandler"
 )
 
 type AddressSyncer struct {
-	database 	  *database.Database
 	agentHandlers map[string]*agentHandler.AgentHandler
 	txsHandler    *txsHandler.TxsHandler
+	addressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
 	onSyncEvents  chan struct{}
 }
 type Config struct {
-	Database 	  *database.Database
 	AgentHandlers map[string]*agentHandler.AgentHandler
 	TxsHandler    *txsHandler.TxsHandler
+	AddressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
 	OnSyncEvents  chan struct{}
 }
 
 func InitialiseAddressSyncer(config Config) *AddressSyncer {
 	return &AddressSyncer{
-		database: config.Database,
+		agentHandlers: config.AgentHandlers,
+		txsHandler: config.TxsHandler,
+		addressSyncStatusManager: config.AddressSyncStatusManager,
+		onSyncEvents: config.OnSyncEvents,
 	}
 }
 func Register(reg *serviceRegistry.ServiceRegistry) {
@@ -35,7 +39,7 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 
 	err = reg.RegisterService(
 		InitialiseAddressSyncer(Config{
-			Database: database,
+			// todo: add managers
 		}),
 	)
 }

@@ -33,4 +33,6 @@ type AddressSyncStatus struct {
 	AddressId int
 	Sync int
 	Cursor string
+	Address string
+	Network string
 }

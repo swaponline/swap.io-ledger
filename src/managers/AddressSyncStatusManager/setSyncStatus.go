@@ -1,6 +1,6 @@
 package AddressSyncStatusManager
 
-func (assm *AddressSyncStatusManager) setSyncStatus(
+func (assm *AddressSyncStatusManager) SetSyncStatus(
 	addressId int,
 ) error {
 	return assm.database.AddressSyncStatusUpdateSyncStatus(

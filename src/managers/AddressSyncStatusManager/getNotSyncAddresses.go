@@ -2,7 +2,7 @@ package AddressSyncStatusManager
 
 import "swap.io-ledger/src/database"
 
-func (assm *AddressSyncStatusManager) getNotSyncAddresses() (
+func (assm *AddressSyncStatusManager) GetNotSyncAddresses() (
 	[]database.AddressSyncStatus,
 	error,
 ) {
