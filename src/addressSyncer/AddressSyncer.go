@@ -3,7 +3,6 @@ package addressSyncer
 import (
 	"log"
 	"swap.io-ledger/src/agentHandler"
-	"swap.io-ledger/src/database"
 	"swap.io-ledger/src/managers/AddressSyncStatusManager"
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/txsHandler"
@@ -31,21 +30,45 @@ func InitialiseAddressSyncer(config Config) *AddressSyncer {
 	}
 }
 func Register(reg *serviceRegistry.ServiceRegistry) {
-	var database *database.Database
-	err := reg.FetchService(&database)
+	var hsdHandler *agentHandler.AgentHandler
+	err := reg.FetchService(&hsdHandler)
 	if err != nil {
 		log.Panicln(err)
 	}
 
+	var addressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
+	err = reg.FetchService(&addressSyncStatusManager)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	var txsHandlerInstance *txsHandler.TxsHandler
+	err = reg.FetchService(&txsHandlerInstance)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	agentHandlers := make(map[string]*agentHandler.AgentHandler)
+	agentHandlers["Handshake"] = hsdHandler
+
 	err = reg.RegisterService(
 		InitialiseAddressSyncer(Config{
-			// todo: add managers
+			AgentHandlers: agentHandlers,
+			TxsHandler: txsHandlerInstance,
+			AddressSyncStatusManager: addressSyncStatusManager,
 		}),
 	)
 }
 
-func (*AddressSyncer) Start() {
-
+func (a *AddressSyncer) Start() {
+	addressesSyncStatuses, err := a.addressSyncStatusManager.GetNotSyncAddresses();
+	if err != nil {
+		log.Panicln(err)
+	}
+	log.Println(addressesSyncStatuses)
+	for _, addressSyncStatus := range addressesSyncStatuses {
+		a.SyncAddress(&addressSyncStatus)
+	}
 }
 func (*AddressSyncer) Status() error {
 	return nil

@@ -11,7 +11,7 @@ func (ah *AgentHandler) GetFirstTxsCursor(address string) (
 	error,
 ) {
 	resp, err := http.Get(fmt.Sprintf(
-		`%v/getFirstCursorTransactions?token=%v&address=%v`,
+		`http://%v/getFirstCursorTransactions?token=%v&address=%v`,
 		ah.baseUrl,
 		ah.apiKey,
 		address,
@@ -32,7 +32,7 @@ func (ah *AgentHandler) GetTxsCursor(cursorId string) (
 	error,
 ) {
 	resp, err := http.Get(fmt.Sprintf(
-		`%v/getCursorTransactions?token=%v&cursor=%v`,
+		`http://%v/getCursorTransactions?token=%v&cursor=%v`,
 		ah.baseUrl,
 		ah.apiKey,
 		cursorId,

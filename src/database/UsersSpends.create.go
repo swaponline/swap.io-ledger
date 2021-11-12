@@ -1,6 +1,8 @@
 package database
 
-import "context"
+import (
+	"context"
+)
 
 func (d *Database) UsersSpendsCreate(
 	txId int,

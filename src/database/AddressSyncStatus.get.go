@@ -8,12 +8,12 @@ func (d *Database) AddressSyncStatusGetNotSyncAddresses() ([]AddressSyncStatus, 
 		`select 
 			address_id,
 			sync,
-			cursor,
+			cursor_id,
 			address,
 			n.name
 		from "Address_sync_status" ass 
 		inner join "Users_addresses" ua
-			on sync = 0 and ass.address_id = us.id
+			on sync = 0 and ass.address_id = ua.id
 		inner join "Coins" c
 			on ua.coin_id = c.id
 		inner join "Networks" n
@@ -37,6 +37,7 @@ func (d *Database) AddressSyncStatusGetNotSyncAddresses() ([]AddressSyncStatus, 
 		if err != nil {
 			return nil, err
 		}
+		statuses = append(statuses, status)
 	}
 
 	return statuses, err

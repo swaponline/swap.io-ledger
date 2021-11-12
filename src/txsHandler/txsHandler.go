@@ -73,6 +73,7 @@ func (th *TxsHandler) TxHandle(
     // todo: handle all errors
     aTxData, _ := json.Marshal(aTx)
 
+    log.Println(string(aTxData), th)
     tx := th.txsManager.CreateTx(
         aTx.Hash,
         string(aTxData),
@@ -93,7 +94,7 @@ func (th *TxsHandler) TxHandle(
             if err != nil {
                 continue
             }
-            th.usersSpendsManager.CreateUserSpend(
+            err = th.usersSpendsManager.CreateUserSpend(
                 UsersSpendsManager.CreateUserSpendData{
                     TxId: tx.Id,
                     TxSpendIndex: spendIndex,
@@ -101,6 +102,9 @@ func (th *TxsHandler) TxHandle(
                     Value: spend.Value,
                 },
             )
+            if err != nil {
+                continue
+            }
         }
     }
 

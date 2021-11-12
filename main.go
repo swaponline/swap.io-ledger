@@ -2,6 +2,7 @@ package main
 
 import (
     "log"
+    "swap.io-ledger/src/addressSyncer"
     "swap.io-ledger/src/agentHandler"
     "swap.io-ledger/src/config"
     "swap.io-ledger/src/database"
@@ -49,6 +50,8 @@ func main() {
     if err != nil {
         log.Panicln(err)
     }
+
+    addressSyncer.Register(registry)
 
     err = registry.RegisterService(
         socketServer.InitialiseSocketServer(),

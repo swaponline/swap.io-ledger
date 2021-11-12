@@ -1,6 +1,8 @@
 package database
 
-import "context"
+import (
+	"context"
+)
 
 func (d *Database) AddressSyncStatusUpdateCursor(
 	addressId int,
@@ -9,8 +11,8 @@ func (d *Database) AddressSyncStatusUpdateCursor(
 	_, err := d.conn.Exec(
 		context.Background(),
 		`update  "Address_sync_status"
-		 set cursor = $2
-		 where id = $1
+		 set cursor_id = $2
+		 where address_id = $1
 		`,
 		addressId, cursor,
 	)
@@ -25,7 +27,7 @@ func (d *Database) AddressSyncStatusUpdateSyncStatus(
 		context.Background(),
 		`update  "Address_sync_status"
 		 set sync = $2
-		 where id = $1
+		 where address_id = $1
 		`,
 		addressId, syncStatus,
 	)
