@@ -5,27 +5,32 @@ import (
 	"github.com/jackc/pgtype"
 	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"swap.io-ledger/src/config"
 )
 
 type Database struct {
-    conn *pgx.Conn
+    pool *pgxpool.Pool
 }
 
 func InitialiseDatabase() *Database {
-    conn, err := pgx.Connect(context.Background(), config.POSTGRESS_URL)
-    if err != nil {
-        log.Panicln(err)
-    }
-	conn.ConnInfo().RegisterDataType(pgtype.DataType{
-		Value: &shopspring.Numeric{},
-		Name:  "numeric",
-		OID:   pgtype.NumericOID,
-	})
+	pgxPoolConfig, err := pgxpool.ParseConfig(config.POSTGRESS_URL)
+	if err != nil {
+		log.Panicln(err)
+	}
+	pgxPoolConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		conn.ConnInfo().RegisterDataType(pgtype.DataType{
+			Value: &shopspring.Numeric{},
+			Name:  "numeric",
+			OID:   pgtype.NumericOID,
+		})
+		return nil
+	}
+	pool, err := pgxpool.ConnectConfig(context.Background(), pgxPoolConfig);
 
     return &Database{
-        conn: conn,
+        pool: pool,
     }
 }
 
@@ -34,5 +39,6 @@ func (*Database) Status() error {
     return nil
 }
 func (d *Database) Stop() error {
-    return d.conn.Close(context.Background())
+    d.pool.Close();
+	return nil;
 }

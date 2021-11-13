@@ -5,7 +5,7 @@ import (
 )
 
 func (d *Database) TxCreate(hash string, data string) (*Tx, error) {
-	d.conn.Exec(
+	d.pool.Exec(
 		context.Background(),
 		`INSERT INTO "Txs" (hash, data) VALUES($1,$2)`,
 		hash, data,

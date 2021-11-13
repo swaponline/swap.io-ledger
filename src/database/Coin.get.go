@@ -8,7 +8,7 @@ func (d *Database) CoinGetByName(
 	name string,
 ) (*Coin, error) {
 	coin := new(Coin)
-	err := d.conn.QueryRow(
+	err := d.pool.QueryRow(
 		context.Background(),
 		`select id, name from "Coins" where name = $1`,
 		name,

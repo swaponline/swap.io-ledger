@@ -6,7 +6,7 @@ import (
 
 func (d *Database) UsersGetById(id int) (*User, error) {
 	user := new(User)
-	err := d.conn.QueryRow(
+	err := d.pool.QueryRow(
 		context.Background(),
 		`select id, pub_key from "Users" where id = $1`,
 		id,

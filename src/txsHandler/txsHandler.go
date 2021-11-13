@@ -73,7 +73,7 @@ func (th *TxsHandler) TxHandle(
     // todo: handle all errors
     aTxData, _ := json.Marshal(aTx)
 
-    log.Println(string(aTxData), th)
+    //log.Println(string(aTxData), th)
     tx := th.txsManager.CreateTx(
         aTx.Hash,
         string(aTxData),
@@ -83,7 +83,7 @@ func (th *TxsHandler) TxHandle(
         coin, err := th.coinsManager.GetCoin(
             spendsInfo.Asset.Id,
         )
-        log.Println(coin, "COIN", err)
+        //log.Println(coin, "COIN", err)
         if err != nil {
             continue
         }

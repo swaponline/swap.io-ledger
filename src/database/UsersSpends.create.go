@@ -10,7 +10,7 @@ func (d *Database) UsersSpendsCreate(
 	userAddressId int,
 	value string,
 ) error  {
-	_, err := d.conn.Exec(
+	_, err := d.pool.Exec(
 		context.Background(),
 		`insert into "Users_spends" 
 			(tx_id, tx_spend_index, user_address_id, value)

@@ -7,7 +7,7 @@ func (d *Database) AddressSyncStatusCreate(
 	sync int,
 	cursor string,
 ) (*AddressSyncStatus, error) {
-	_, err := d.conn.Exec(
+	_, err := d.pool.Exec(
 		context.Background(),
 		`insert into "Address_sync_status" (address_id, sync, cursor)
 			values($1,$2,$3)

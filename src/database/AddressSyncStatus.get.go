@@ -3,7 +3,7 @@ package database
 import "context"
 
 func (d *Database) AddressSyncStatusGetNotSyncAddresses() ([]AddressSyncStatus, error) {
-	statusesRows, err := d.conn.Query(
+	statusesRows, err := d.pool.Query(
 		context.Background(),
 		`select 
 			address_id,

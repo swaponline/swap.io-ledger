@@ -11,6 +11,12 @@ func (as *AddressSyncer) SyncAddress(
 	status *database.AddressSyncStatus,
 ) {
 	if agentHandlerInstance, ok := as.agentHandlers[status.Network]; ok {
+		log.Println(
+			"start sync",
+			status.AddressId,
+			status.Address,
+			status.Network,
+		)
 		for {
 			var cursorTxs *agentHandler.CursorTxs
 			var err error
@@ -20,11 +26,12 @@ func (as *AddressSyncer) SyncAddress(
 				cursorTxs, err = agentHandlerInstance.GetTxsCursor(status.Cursor)
 			}
 			if err != nil {
-				log.Println("ERROR:", err)
+				log.Println("ERROR SYNC:", err)
 				<-time.After(time.Second)
 				continue
 			}
 
+			log.Println(cursorTxs.Cursor, cursorTxs.NextCursor)
 			for _, aTx := range cursorTxs.Transactions {
 				as.txsHandler.TxHandle(aTx)
 			}
@@ -35,17 +42,17 @@ func (as *AddressSyncer) SyncAddress(
 					cursorTxs.NextCursor,
 				)
 				if err != nil {
-					log.Println("ERROR:", err)
+					log.Println("ERROR SYNC:", err)
 				}
 			} else {
 				err := as.addressSyncStatusManager.SetSyncStatus(status.AddressId)
 				if err != nil {
-					log.Println("ERROR:", err)
+					log.Println("ERROR SYNC:", err)
 				}
 				return
 			}
 
-			cursorTxs.Cursor = cursorTxs.NextCursor
+			status.Cursor = cursorTxs.NextCursor
 		}
 	}
 }

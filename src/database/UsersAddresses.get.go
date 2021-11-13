@@ -9,7 +9,7 @@ func (d *Database) UsersAddressesGetByCoinIdAndAddress(
 	address string,
 ) (*UserAddress, error) {
 	userAddress := new(UserAddress)
-	err := d.conn.QueryRow(
+	err := d.pool.QueryRow(
 		context.Background(),
 		`select 
 			id,

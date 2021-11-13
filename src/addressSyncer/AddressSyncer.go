@@ -65,7 +65,6 @@ func (a *AddressSyncer) Start() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	log.Println(addressesSyncStatuses)
 	for _, addressSyncStatus := range addressesSyncStatuses {
 		a.SyncAddress(&addressSyncStatus)
 	}
