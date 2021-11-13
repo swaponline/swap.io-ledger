@@ -38,21 +38,21 @@ func (a *AgentHandler) runWatch() {
 			return
 		}
 
-		var aTx txsHandler.NonHandledTx
-		if err := json.Unmarshal(msg,&aTx); err != nil {
+		var nonTx txsHandler.NonHandledTx
+		if err := json.Unmarshal(msg,&nonTx); err != nil {
 			log.Println("ERROR:", err)
 			continue
 		}
-		log.Println("on tx", aTx.Hash)
+		log.Println("on tx", nonTx.Hash)
 
-		tx := a.txsHandler.TxHandle(&aTx)
+		tx := a.txsHandler.TxHandle(&nonTx)
 
 		err = c.WriteMessage(websocket.TextMessage, []byte{})
 		if err != nil {
 			log.Println("ERROR:", err)
 			break
 		}
-		log.Println("tx receive", tx.Id, aTx.Hash)
+		log.Println("tx receive", tx.Id, nonTx.Hash)
 
 		//a.TxsSource <- tx
 	}

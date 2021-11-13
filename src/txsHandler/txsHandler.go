@@ -68,18 +68,18 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 }
 
 func (th *TxsHandler) TxHandle(
-    aTx *NonHandledTx,
+    nonTx *NonHandledTx,
 ) *database.Tx {
     // todo: handle all errors
-    aTxData, _ := json.Marshal(aTx)
+    nonTxData, _ := json.Marshal(nonTx)
 
     //log.Println(string(aTxData), th)
     tx := th.txsManager.CreateTx(
-        aTx.Hash,
-        string(aTxData),
+        nonTx.Hash,
+        string(nonTxData),
     )
 
-    for _, spendsInfo := range aTx.Journal {
+    for _, spendsInfo := range nonTx.Journal {
         coin, err := th.coinsManager.GetCoin(
             spendsInfo.Asset.Id,
         )
