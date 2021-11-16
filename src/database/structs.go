@@ -23,6 +23,11 @@ type UserAddress struct {
 	UserId int
 	Address string
 }
+type CreateUserAddressData struct {
+	Network string
+	Coin string
+	Address string
+}
 type UserSpend struct {
 	TxId int
 	TxWiringIndex int
