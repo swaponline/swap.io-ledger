@@ -1,4 +1,4 @@
-package addressSyncer
+package AddressSyncer
 
 import (
 	"log"

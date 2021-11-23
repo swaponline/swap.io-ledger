@@ -1,4 +1,4 @@
-package addressSyncer
+package AddressSyncer
 
 import (
 	"log"
@@ -6,7 +6,20 @@ import (
 	"swap.io-ledger/src/database"
 	"time"
 )
-
+func (as *AddressSyncer) SyncNewAddresses(
+	ids []int,
+) {
+	for _, id := range ids {
+		syncStatus, err := as.addressSyncStatusManager.GetByAddressId(id)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		if syncStatus.Sync == 0 {
+			as.SyncAddress(syncStatus)
+		}
+	}
+}
 func (as *AddressSyncer) SyncAddress(
 	status *database.AddressSyncStatus,
 ) {

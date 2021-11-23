@@ -1,21 +1,23 @@
 package registrar
 
 import (
-	"swap.io-ledger/src/managers/UsersAdressesManager"
+	"swap.io-ledger/src/addressSyncer"
 	"swap.io-ledger/src/managers/UsersManager"
 )
 
 type Registrar struct {
-
+	usersManager *UsersManager.UsersManager
+	addressSyncer *AddressSyncer.AddressSyncer
 }
 type Config struct {
 	UsersManager *UsersManager.UsersManager
-	UsersAddressesManager *UsersAdressesManager.UsersAddressesManager
+	AddressSyncer *AddressSyncer.AddressSyncer
 }
 
 func InitialiseRegistrar(config Config) *Registrar {
 	return &Registrar{
-
+		usersManager: config.UsersManager,
+		addressSyncer: config.AddressSyncer,
 	}
 }
 

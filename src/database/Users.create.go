@@ -32,39 +32,28 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 	defer conn.Release()
 	defer dTx.Rollback(context.Background());
 
-	_, err = dTx.Exec(
-		context.Background(),
-		`insert into "Users" (pub_key) values($1)`,
-		pubKey,
-	)
-	if err != nil {
-		return 0, nil, err
-	}
-
 	var newUserId int
-	newAddressesIds := make([]int, 0)
-	row := dTx.QueryRow(
+	err = dTx.QueryRow(
 		context.Background(),
-		`select id from "Users" where pub_key = $1`,
+		`insert into "Users" (pub_key) values($1) returning id`,
 		pubKey,
-	)
-	err = row.Scan(&newUserId)
+	).Scan(&newUserId)
 	if err != nil {
 		return 0, nil, err
 	}
 
+	newAddressesIds := make([]int, 0)
 	for _, address := range addresses {
 		// todo: errors handle
 		var coinId int
-		row = dTx.QueryRow(
+		err := dTx.QueryRow(
 			context.Background(),
 			`select c.id from "Networks" n inner join "Coins" c
 			 on n.id = c.network_id and 
                 n.name = $1 and 
                 c.name = $2`,
 			 address.Network, address.Coin,
-		)
-		err := row.Scan(&coinId)
+		).Scan(&coinId)
 		if err != nil {
 			return 0, nil, err
 		}

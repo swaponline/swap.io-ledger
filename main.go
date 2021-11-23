@@ -4,6 +4,7 @@ import (
     "log"
     "swap.io-ledger/src/addressSyncer"
     "swap.io-ledger/src/agentHandler"
+    "swap.io-ledger/src/auth"
     "swap.io-ledger/src/config"
     "swap.io-ledger/src/database"
     "swap.io-ledger/src/httpHandler"
@@ -19,6 +20,8 @@ import (
 )
 
 func main() {
+    auth.VerifyKeySign();
+
 	config.InitializeConfig()
 
     registry := serviceRegistry.NewServiceRegistry()
