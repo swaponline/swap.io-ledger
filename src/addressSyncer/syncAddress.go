@@ -7,9 +7,9 @@ import (
 	"time"
 )
 func (as *AddressSyncer) SyncNewAddresses(
-	ids []int,
+	newAddressesIds []int,
 ) {
-	for _, id := range ids {
+	for _, id := range newAddressesIds {
 		syncStatus, err := as.addressSyncStatusManager.GetByAddressId(id)
 		if err != nil {
 			log.Println(err)

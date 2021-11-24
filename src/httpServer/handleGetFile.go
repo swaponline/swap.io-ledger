@@ -1,7 +1,5 @@
-package httpserver
+package Httpserver
 
-import "net/http"
-
-func InitialiseHandleFile() {
-    http.Handle("/", http.FileServer(http.Dir("static")))
-}
+//func InitialiseHandleFile() {
+//    http.Handle("/", http.FileServer(http.Dir("static")))
+//}

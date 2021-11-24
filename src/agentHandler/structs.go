@@ -1,4 +1,4 @@
-package agentHandler
+package AgentHandler
 
 import "swap.io-ledger/src/txsHandler"
 
