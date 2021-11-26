@@ -1,4 +1,4 @@
-package Httpserver
+package HttpServer
 
 type RegistrationData struct {
 	PubKey string `json:"pubKey"`

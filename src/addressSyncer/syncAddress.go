@@ -31,7 +31,7 @@ func (as *AddressSyncer) SyncAddress(
 			status.Network,
 		)
 		for {
-			var cursorTxs *agentHandler.CursorTxs
+			var cursorTxs *AgentHandler.CursorTxs
 			var err error
 			if status.Cursor == "null" {
 				cursorTxs, err = agentHandlerInstance.GetFirstTxsCursor(status.Address)

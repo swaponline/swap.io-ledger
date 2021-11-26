@@ -16,7 +16,7 @@ type SocketServer struct {
 }
 
 type Config struct {
-    agentHandlers []*agentHandler.AgentHandler
+    agentHandlers []*AgentHandler.AgentHandler
 }
 
 const writePeriod = time.Minute * 1

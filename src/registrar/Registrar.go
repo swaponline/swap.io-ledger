@@ -1,9 +1,11 @@
 package registrar
 
 import (
+	"log"
 	"swap.io-ledger/src/addressSyncer"
 	"swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/managers/UsersManager"
+	"swap.io-ledger/src/serviceRegistry"
 )
 
 type Registrar struct {
@@ -21,4 +23,33 @@ func InitialiseRegistrar(config Config) *Registrar {
 		usersManager: config.UsersManager,
 		addressSyncer: config.AddressSyncer,
 	}
+}
+
+func Register(reg *serviceRegistry.ServiceRegistry) {
+	var usersManager *UsersManager.UsersManager
+	err := reg.FetchService(&usersManager)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	var addressSyncer *AddressSyncer.AddressSyncer
+	err = reg.FetchService(&addressSyncer)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	err = reg.RegisterService(
+		InitialiseRegistrar(Config{
+			UsersManager: usersManager,
+			AddressSyncer: addressSyncer,
+		}),
+	)
+}
+
+func (*Registrar) Start() {}
+func (*Registrar) Stop() error {
+	return nil
+}
+func (*Registrar) Status() error {
+	return nil
 }

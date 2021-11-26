@@ -4,24 +4,23 @@ import (
     "log"
     "swap.io-ledger/src/addressSyncer"
     "swap.io-ledger/src/agentHandler"
-    "swap.io-ledger/src/auth"
     "swap.io-ledger/src/config"
     "swap.io-ledger/src/database"
     "swap.io-ledger/src/httpHandler"
+    "swap.io-ledger/src/httpServer"
     "swap.io-ledger/src/managers/AddressSyncStatusManager"
     "swap.io-ledger/src/managers/CoinsManager"
     "swap.io-ledger/src/managers/TxsManager"
     "swap.io-ledger/src/managers/UsersAdressesManager"
     "swap.io-ledger/src/managers/UsersManager"
     "swap.io-ledger/src/managers/UsersSpendsManager"
+    "swap.io-ledger/src/registrar"
     "swap.io-ledger/src/serviceRegistry"
     "swap.io-ledger/src/socketServer"
     "swap.io-ledger/src/txsHandler"
 )
 
 func main() {
-    auth.VerifyKeySign();
-
 	config.InitializeConfig()
 
     registry := serviceRegistry.NewServiceRegistry()
@@ -44,7 +43,7 @@ func main() {
     txsHandler.Register(registry)
 
     hsd := config.AGENTS[0]
-    err = agentHandler.Register(
+    err = AgentHandler.Register(
         registry,
         hsd.Network,
         hsd.BaseUrl,
@@ -54,11 +53,17 @@ func main() {
         log.Panicln(err)
     }
 
-    addressSyncer.Register(registry)
+    AddressSyncer.Register(registry)
+    registrar.Register(registry)
 
     err = registry.RegisterService(
         socketServer.InitialiseSocketServer(),
     )
+    if err != nil {
+        log.Panicln(err)
+    }
+
+    err = HttpServer.Register(registry)
     if err != nil {
         log.Panicln(err)
     }

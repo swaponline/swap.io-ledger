@@ -9,13 +9,13 @@ import (
 )
 
 type AddressSyncer struct {
-	agentHandlers map[string]*agentHandler.AgentHandler
+	agentHandlers map[string]*AgentHandler.AgentHandler
 	txsHandler    *txsHandler.TxsHandler
 	addressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
 	onSyncEvents  chan struct{}
 }
 type Config struct {
-	AgentHandlers map[string]*agentHandler.AgentHandler
+	AgentHandlers map[string]*AgentHandler.AgentHandler
 	TxsHandler    *txsHandler.TxsHandler
 	AddressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
 	OnSyncEvents  chan struct{}
@@ -30,7 +30,7 @@ func InitialiseAddressSyncer(config Config) *AddressSyncer {
 	}
 }
 func Register(reg *serviceRegistry.ServiceRegistry) {
-	var hsdHandler *agentHandler.AgentHandler
+	var hsdHandler *AgentHandler.AgentHandler
 	err := reg.FetchService(&hsdHandler)
 	if err != nil {
 		log.Panicln(err)
@@ -48,7 +48,7 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 		log.Panicln(err)
 	}
 
-	agentHandlers := make(map[string]*agentHandler.AgentHandler)
+	agentHandlers := make(map[string]*AgentHandler.AgentHandler)
 	agentHandlers["Handshake"] = hsdHandler
 
 	err = reg.RegisterService(
