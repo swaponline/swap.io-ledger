@@ -4,6 +4,7 @@ import (
     "log"
     "swap.io-ledger/src/addressSyncer"
     "swap.io-ledger/src/agentHandler"
+    "swap.io-ledger/src/auth"
     "swap.io-ledger/src/config"
     "swap.io-ledger/src/database"
     "swap.io-ledger/src/httpHandler"
@@ -55,18 +56,10 @@ func main() {
 
     AddressSyncer.Register(registry)
     registrar.Register(registry)
+    auth.Register(registry)
 
-    err = registry.RegisterService(
-        socketServer.InitialiseSocketServer(),
-    )
-    if err != nil {
-        log.Panicln(err)
-    }
-
-    err = HttpServer.Register(registry)
-    if err != nil {
-        log.Panicln(err)
-    }
+    socketServer.Register(registry)
+    HttpServer.Register(registry)
 
     err = registry.RegisterService(
         httpHandler.InitializeServer(),

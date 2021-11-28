@@ -69,7 +69,7 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 
 func (th *TxsHandler) TxHandle(
     nonTx *NonHandledTx,
-) *database.Tx {
+) (*database.Tx, []int) {
     // todo: handle all errors
     nonTxData, _ := json.Marshal(nonTx)
 
@@ -78,6 +78,7 @@ func (th *TxsHandler) TxHandle(
         nonTx.Hash,
         string(nonTxData),
     )
+    participateUserIdsMap := make(map[int]struct {})
 
     for _, spendsInfo := range nonTx.Journal {
         coin, err := th.coinsManager.GetCoin(
@@ -105,10 +106,16 @@ func (th *TxsHandler) TxHandle(
             if err != nil {
                 continue
             }
+            participateUserIdsMap[userAddress.UserId] = struct{}{}
         }
     }
 
-    return tx
+    participateUserIds := make([]int, 0)
+    for id := range participateUserIdsMap {
+        participateUserIds = append(participateUserIds, id)
+    }
+
+    return tx, participateUserIds
 }
 
 func (th *TxsHandler) Start() {}

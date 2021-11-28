@@ -45,15 +45,18 @@ func (a *AgentHandler) runWatch() {
 		}
 		log.Println("on tx", nonTx.Hash)
 
-		tx := a.txsHandler.TxHandle(&nonTx)
+		tx, participateUserIdsMap := a.txsHandler.TxHandle(&nonTx)
 
 		err = c.WriteMessage(websocket.TextMessage, []byte{})
 		if err != nil {
 			log.Println("ERROR:", err)
 			break
 		}
-		log.Println("tx receive", tx.Id, nonTx.Hash)
 
-		//a.TxsSource <- tx
+		log.Println("tx receive", tx.Id, nonTx.Hash, participateUserIdsMap)
+		//a.TxsSource <- &socketServer.TxNotification{
+		//	Tx: tx,
+		//	UsersIds: participateUserIdsMap,
+		//}
 	}
 }

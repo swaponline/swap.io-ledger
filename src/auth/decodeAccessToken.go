@@ -1,28 +1,41 @@
 package auth
 
 import (
-	"github.com/lestrrat-go/jwx/jwa"
-	"github.com/lestrrat-go/jwx/jwt"
-	"swap.io-ledger/src/config"
+	"encoding/hex"
+	"strconv"
+	"strings"
+	"swap.io-ledger/src/database"
+	"time"
 )
 
-func DecodeAccessToken(tokenString string) (string, bool) {
-	info, err := jwt.Parse(
-		[]byte(tokenString),
-		jwt.WithVerify(
-			jwa.HS256,
-			[]byte(config.SECRET_TOKEN),
-		),
-	)
+func (a *Auth) DecodeAccessToken(tokenString string) (*database.User, bool) {
+	tokenData := strings.Split(tokenString, ".")
+	if len(tokenData) != 2 {
+		return nil, false
+	}
+
+	validTokenTimeBytes, err  := hex.DecodeString(tokenData[0])
 	if err != nil {
-		return "-1", true
+		return nil, false
+	}
+	validTokenTime, err := strconv.ParseInt(
+		string(validTokenTimeBytes),
+		0,
+		64,
+	)
+	if err != nil || validTokenTime < time.Now().Unix() {
+		return nil, false
 	}
 
-	if id, ok := info.Get("id"); ok {
-		if idStr, ok := id.(string); ok {
-			return idStr, false
-		}
+	pubKey, ok := VerifySign(tokenData[0], tokenData[1])
+	if !ok {
+		return nil, false
 	}
 
-	return "-1", true
+	user, err := a.usersManager.GetUserByPubKey(string(pubKey))
+	if err != nil {
+		return nil, false
+	}
+
+	return user, true
 }

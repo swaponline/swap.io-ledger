@@ -16,12 +16,14 @@ type Registrar struct {
 type Config struct {
 	UsersManager *UsersManager.UsersManager
 	AddressSyncer *AddressSyncer.AddressSyncer
+	AgentHandler *AgentHandler.AgentHandler
 }
 
 func InitialiseRegistrar(config Config) *Registrar {
 	return &Registrar{
 		usersManager: config.UsersManager,
 		addressSyncer: config.AddressSyncer,
+		agentHandler: config.AgentHandler,
 	}
 }
 
@@ -38,10 +40,17 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 		log.Panicln(err)
 	}
 
+	var agentHandler *AgentHandler.AgentHandler
+	err = reg.FetchService(&agentHandler)
+	if err != nil {
+		log.Panicln(err)
+	}
+
 	err = reg.RegisterService(
 		InitialiseRegistrar(Config{
 			UsersManager: usersManager,
 			AddressSyncer: addressSyncer,
+			AgentHandler: agentHandler,
 		}),
 	)
 }

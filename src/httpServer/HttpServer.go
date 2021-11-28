@@ -21,20 +21,21 @@ func InitialiseHttpServer(config Config) *HttpServer {
 
 	return httpServer
 }
-func Register(reg *serviceRegistry.ServiceRegistry) error {
+func Register(reg *serviceRegistry.ServiceRegistry) {
 	var registrarInstance *registrar.Registrar
 	err := reg.FetchService(&registrarInstance)
 	if err != nil {
 		log.Panicln(err)
 	}
 
-	_ = reg.RegisterService(
+	err = reg.RegisterService(
 		 InitialiseHttpServer(Config{
 			 Registrar: registrarInstance,
 		 }),
 	)
-
-	return nil
+	if err != nil {
+		log.Panicln(err)
+	}
 }
 
 

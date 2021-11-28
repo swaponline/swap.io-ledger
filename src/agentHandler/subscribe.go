@@ -1,17 +1,18 @@
 package AgentHandler
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 )
 
 func (ah *AgentHandler) Subscribe(address string) error {
-	_, err := http.Get(fmt.Sprintf(
-		`http://%v/getCursorTransactions?token=%v&address=%v`,
+	_, err := http.Post(fmt.Sprintf(
+		`http://%v/subscribe?token=%v&address=%v`,
 		ah.baseUrl,
 		ah.apiKey,
 		address,
-	))
+	), "", bytes.NewReader([]byte{}))
 
 	return err
 }

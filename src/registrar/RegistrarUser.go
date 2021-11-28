@@ -1,13 +1,26 @@
 package registrar
 
-import "swap.io-ledger/src/database"
+import (
+	"log"
+	"swap.io-ledger/src/database"
+)
 
 func (r *Registrar) RegistrarUser(
 	pubKey string,
 	addresses []database.CreateUserAddressData,
 ) error {
 	_, newAddressesIds, err := r.usersManager.CreateUserByPubKeyAndAddresses(
-		pubKey, addresses,
+		pubKey,
+		addresses,
+		func() error {
+			for _, address := range addresses {
+				if address.Coin == "HSD" {
+					log.Println("subscribe on", address.Address)
+					return r.agentHandler.Subscribe(address.Address)
+				}
+			}
+			return nil
+		},
 	)
 	if err != nil {
 		return err

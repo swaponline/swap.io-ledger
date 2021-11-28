@@ -20,6 +20,7 @@ func (d *Database) UsersCreate (
 func (d *Database) UsersCreateByPubKeyAndAddresses(
 	pubKey string,
 	addresses []CreateUserAddressData,
+	beforeCommit func() error,
 ) (int, []int, error) {
 	conn, err := d.pool.Acquire(context.Background())
 	if err != nil {
@@ -66,7 +67,7 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 				user_id,
 				address
 			) values($1,$2,$3) returning id`,
-			coinId,newUserId,address,
+			coinId,newUserId,address.Address,
 		).Scan(&newAddressId)
 		if err != nil {
 			return 0, nil, err
@@ -89,6 +90,11 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 			newAddressesIds,
 			newAddressId,
 		)
+	}
+
+	err = beforeCommit()
+	if err != nil {
+		return 0, nil, err
 	}
 
 	err = dTx.Commit(context.Background())

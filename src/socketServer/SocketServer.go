@@ -3,7 +3,7 @@ package socketServer
 import (
 	"log"
 	"net/http"
-	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/serviceRegistry"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -12,10 +12,12 @@ import (
 )
 
 type SocketServer struct {
-    txSource <-chan *database.Tx
+	auth *auth.Auth
+    txSource <-chan *TxNotification
 }
 
 type Config struct {
+	Auth *auth.Auth
     agentHandlers []*AgentHandler.AgentHandler
 }
 
@@ -24,15 +26,15 @@ const readPeriod  = time.Minute * 2
 
 var upgrader = websocket.Upgrader{}
 
-func InitialiseSocketServer() *SocketServer {
+func InitialiseSocketServer(config Config) *SocketServer {
     wsHandle := func(w http.ResponseWriter, r *http.Request) {
-        userId, err := auth.AuthenticationRequest(r)
-        if err != nil {
-            log.Println("ERROR user not connected")
-            w.WriteHeader(http.StatusUnauthorized)
-            w.Write([]byte(`failed auth`))
-            return
-        }
+        userId := "0" //, err := auth.AuthenticationRequest(r)
+        //if err != nil {
+        //    log.Println("ERROR user not connected")
+        //    w.WriteHeader(http.StatusUnauthorized)
+        //    w.Write([]byte(`failed auth`))
+        //    return
+        //}
 
         c, err := upgrader.Upgrade(w, r, nil)
         if err != nil {
@@ -84,6 +86,21 @@ func InitialiseSocketServer() *SocketServer {
     http.HandleFunc("/ws", wsHandle)
 
 	return &SocketServer{}
+}
+
+func Register(reg *serviceRegistry.ServiceRegistry) {
+	var auth *auth.Auth
+	err := reg.FetchService(&auth)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	err = reg.RegisterService(InitialiseSocketServer(Config{
+		Auth: auth,
+	}))
+	if err != nil {
+		log.Panicln(err)
+	}
 }
 
 func (*SocketServer) Start() {}

@@ -10,9 +10,11 @@ func (um *UsersManager) CreateUser(
 func (um *UsersManager) CreateUserByPubKeyAndAddresses(
 	pubKey string,
 	addresses []database.CreateUserAddressData,
+	beforeCommit func() error,
 ) (int, []int, error) {
 	return um.database.UsersCreateByPubKeyAndAddresses(
 		pubKey,
 		addresses,
+		beforeCommit,
 	)
 }
