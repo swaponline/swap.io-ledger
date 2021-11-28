@@ -2,7 +2,6 @@ package AgentHandler
 
 import (
 	"log"
-	"swap.io-ledger/src/database"
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/txsHandler"
 )
@@ -12,7 +11,7 @@ type AgentHandler struct {
 	baseUrl     string
 	apiKey      string
 	txsHandler  *txsHandler.TxsHandler
-	TxsSource   chan *database.Tx
+	TxNotifications   chan *TxNotification
 }
 
 type Config struct {
@@ -28,7 +27,7 @@ func InitialiseAgentHandler(config Config) *AgentHandler {
 		baseUrl:     config.BaseUrl,
 		apiKey:      config.ApiKey,
 		txsHandler:  config.TxsHandler,
-		TxsSource:   make(chan *database.Tx),
+		TxNotifications:   make(chan *TxNotification),
 	}
 
 	return &handler

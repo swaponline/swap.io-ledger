@@ -32,7 +32,9 @@ func (a *Auth) DecodeAccessToken(tokenString string) (*database.User, bool) {
 		return nil, false
 	}
 
-	user, err := a.usersManager.GetUserByPubKey(string(pubKey))
+	user, err := a.usersManager.GetUserByPubKey(
+		hex.EncodeToString(pubKey),
+	)
 	if err != nil {
 		return nil, false
 	}

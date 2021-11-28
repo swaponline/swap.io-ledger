@@ -19,7 +19,7 @@ func (hs *HttpServer) handleRegistration() {
             return
         }
 
-        _, ok := auth.VerifySign(
+        pubKey, ok := auth.VerifySign(
             registrationData.Addresses,
             registrationData.Sign,
         )
@@ -44,7 +44,10 @@ func (hs *HttpServer) handleRegistration() {
             return
         }
 
-        err = hs.registrar.RegistrarUser(registrationData.PubKey, addresses)
+        err = hs.registrar.RegistrarUser(
+            hex.EncodeToString(pubKey),
+            addresses,
+        )
         if err != nil {
             log.Println("WARN:", err)
             w.WriteHeader(http.StatusInternalServerError)

@@ -29,6 +29,9 @@ func (d *Database) UsersGetByPubKey(pubKey string) (*User, error) {
 		`select id, pub_key from "Users" where pub_key = $1`,
 		pubKey,
 	).Scan(&user.Id, &user.PubKey)
+	if err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }

@@ -13,7 +13,7 @@ import (
 
 type SocketServer struct {
 	auth *auth.Auth
-    txSource <-chan *TxNotification
+    txSource <-chan *AgentHandler.TxNotification
 }
 
 type Config struct {
@@ -28,7 +28,12 @@ var upgrader = websocket.Upgrader{}
 
 func InitialiseSocketServer(config Config) *SocketServer {
     wsHandle := func(w http.ResponseWriter, r *http.Request) {
-        userId := "0" //, err := auth.AuthenticationRequest(r)
+        userId, err := config.Auth.AuthenticationRequest(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("invalid token"))
+			return
+		}
         //if err != nil {
         //    log.Println("ERROR user not connected")
         //    w.WriteHeader(http.StatusUnauthorized)
