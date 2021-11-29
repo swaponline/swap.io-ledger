@@ -1,9 +1,12 @@
 package socketServer
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"swap.io-ledger/src/database"
 	"swap.io-ledger/src/serviceRegistry"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -19,6 +22,7 @@ type SocketServer struct {
 type Config struct {
 	Auth *auth.Auth
     agentHandlers []*AgentHandler.AgentHandler
+	txSource <- chan AgentHandler.TxNotification
 }
 
 const writePeriod = time.Minute * 1
@@ -27,6 +31,25 @@ const readPeriod  = time.Minute * 2
 var upgrader = websocket.Upgrader{}
 
 func InitialiseSocketServer(config Config) *SocketServer {
+	type UserListener struct {
+		pingTicker *time.Ticker
+		txNotification chan *database.Tx
+	}
+	userListeners := make(map[int]UserListener)
+	userListenersLocker := sync.Mutex{}
+	go func() {
+		for {
+			userListenersLocker.Lock()
+			txNotification := <- config.txSource
+			for _, userId := range txNotification.UsersIds {
+				if userListener, ok := userListeners[userId]; ok {
+					userListener.txNotification <- txNotification.Tx
+				}
+			}
+			userListenersLocker.Unlock()
+		}
+	}()
+
     wsHandle := func(w http.ResponseWriter, r *http.Request) {
         userId, err := config.Auth.AuthenticationRequest(r)
 		if err != nil {
@@ -34,12 +57,6 @@ func InitialiseSocketServer(config Config) *SocketServer {
 			w.Write([]byte("invalid token"))
 			return
 		}
-        //if err != nil {
-        //    log.Println("ERROR user not connected")
-        //    w.WriteHeader(http.StatusUnauthorized)
-        //    w.Write([]byte(`failed auth`))
-        //    return
-        //}
 
         c, err := upgrader.Upgrade(w, r, nil)
         if err != nil {
@@ -48,15 +65,23 @@ func InitialiseSocketServer(config Config) *SocketServer {
         }
         defer c.Close()
 
-        log.Println("connect:", userId)
+		ticker := time.NewTicker(writePeriod)
+		defer ticker.Stop()
+		txNotification := make(chan *database.Tx)
+		defer close(txNotification)
 
-        ticker := time.NewTicker(writePeriod)
-        defer ticker.Stop()
+		userListener := UserListener{
+			pingTicker: ticker,
+			txNotification: txNotification,
+		}
+		userListeners[userId] = userListener
+
+        log.Println("connect:", userId)
 
 		go func() {
             for {
 				select {
-                case <-ticker.C:
+                case <-userListener.pingTicker.C:
                     {
                         log.Println("ping")
                         c.SetWriteDeadline(time.Now().Add(writePeriod))
@@ -67,6 +92,17 @@ func InitialiseSocketServer(config Config) *SocketServer {
                             return
                         }
                     }
+				case tx, ok := <-userListener.txNotification:
+					{
+						if sendingData, err := json.Marshal(tx); err == nil && ok {
+							if err := c.WriteMessage(
+								websocket.TextMessage,
+								sendingData,
+							); err != nil {
+								return
+							}
+						}
+					}
 				}
 			}
 		}()
@@ -86,6 +122,10 @@ func InitialiseSocketServer(config Config) *SocketServer {
                 return
             }
         }
+
+		userListenersLocker.Lock()
+		delete(userListeners, userId)
+		userListenersLocker.Unlock()
     }
 
     http.HandleFunc("/ws", wsHandle)
