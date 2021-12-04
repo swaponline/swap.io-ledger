@@ -11,9 +11,9 @@ import (
 
 func (a *AgentHandler) runWatch() {
 	u := url.URL{
-		Scheme: "ws",
-		Host: a.baseUrl,
-		Path: "/ws",
+		Scheme:   "ws",
+		Host:     a.baseUrl,
+		Path:     "/ws",
 		RawQuery: fmt.Sprintf("token=%v", a.apiKey),
 	}
 	c, _, err := websocket.DefaultDialer.Dial(
@@ -39,7 +39,7 @@ func (a *AgentHandler) runWatch() {
 		}
 
 		var nonTx txsHandler.NonHandledTx
-		if err := json.Unmarshal(msg,&nonTx); err != nil {
+		if err := json.Unmarshal(msg, &nonTx); err != nil {
 			log.Println("ERROR:", err)
 			continue
 		}
@@ -54,9 +54,9 @@ func (a *AgentHandler) runWatch() {
 		}
 
 		log.Println("tx receive", tx.Id, nonTx.Hash, participateUserIdsMap)
-		//a.TxsSource <- &socketServer.TxNotification{
-		//	Tx: tx,
-		//	UsersIds: participateUserIdsMap,
-		//}
+		a.TxNotifications <- &TxNotification{
+			Tx:       tx,
+			UsersIds: participateUserIdsMap,
+		}
 	}
 }

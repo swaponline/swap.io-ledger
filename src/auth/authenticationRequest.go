@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (a *Auth) AuthenticationRequest (request *http.Request) (int, error) {
+func (a *Auth) AuthenticationRequest(request *http.Request) (int, error) {
 	tokenInfo := request.URL.Query()["token"]
 	if len(tokenInfo) == 0 {
 		return -1, errors.New("not exist token")

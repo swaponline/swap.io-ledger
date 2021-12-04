@@ -14,7 +14,7 @@ func (r *Registrar) RegistrarUser(
 		addresses,
 		func() error {
 			for _, address := range addresses {
-				if address.Coin == "HSD" {
+				if address.Coin == "HSN" {
 					log.Println("subscribe on", address.Address)
 					return r.agentHandler.Subscribe(address.Address)
 				}
@@ -28,4 +28,4 @@ func (r *Registrar) RegistrarUser(
 
 	r.addressSyncer.SyncNewAddresses(newAddressesIds)
 	return nil
-};
+}

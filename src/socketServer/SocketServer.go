@@ -15,24 +15,24 @@ import (
 )
 
 type SocketServer struct {
-	auth *auth.Auth
-    txSource <-chan *AgentHandler.TxNotification
+	auth     *auth.Auth
+	txSource <-chan *AgentHandler.TxNotification
 }
 
 type Config struct {
-	Auth *auth.Auth
-    agentHandlers []*AgentHandler.AgentHandler
-	txSource <- chan AgentHandler.TxNotification
+	Auth          *auth.Auth
+	agentHandlers []*AgentHandler.AgentHandler
+	txSource      chan *AgentHandler.TxNotification
 }
 
 const writePeriod = time.Minute * 1
-const readPeriod  = time.Minute * 2
+const readPeriod = time.Minute * 2
 
 var upgrader = websocket.Upgrader{}
 
 func InitialiseSocketServer(config Config) *SocketServer {
 	type UserListener struct {
-		pingTicker *time.Ticker
+		pingTicker     *time.Ticker
 		txNotification chan *database.Tx
 	}
 	userListeners := make(map[int]UserListener)
@@ -40,7 +40,7 @@ func InitialiseSocketServer(config Config) *SocketServer {
 	go func() {
 		for {
 			userListenersLocker.Lock()
-			txNotification := <- config.txSource
+			txNotification := <-config.txSource
 			for _, userId := range txNotification.UsersIds {
 				if userListener, ok := userListeners[userId]; ok {
 					userListener.txNotification <- txNotification.Tx
@@ -50,20 +50,21 @@ func InitialiseSocketServer(config Config) *SocketServer {
 		}
 	}()
 
-    wsHandle := func(w http.ResponseWriter, r *http.Request) {
-        userId, err := config.Auth.AuthenticationRequest(r)
+	wsHandle := func(w http.ResponseWriter, r *http.Request) {
+		userId, err := config.Auth.AuthenticationRequest(r)
+		log.Println("handle connect", r.URL.Query().Get("token"))
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("invalid token"))
 			return
 		}
 
-        c, err := upgrader.Upgrade(w, r, nil)
-        if err != nil {
-            log.Println("upgrade:", err)
-            return
-        }
-        defer c.Close()
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println("upgrade:", err)
+			return
+		}
+		defer c.Close()
 
 		ticker := time.NewTicker(writePeriod)
 		defer ticker.Stop()
@@ -71,27 +72,27 @@ func InitialiseSocketServer(config Config) *SocketServer {
 		defer close(txNotification)
 
 		userListener := UserListener{
-			pingTicker: ticker,
+			pingTicker:     ticker,
 			txNotification: txNotification,
 		}
 		userListeners[userId] = userListener
 
-        log.Println("connect:", userId)
+		log.Println("connect:", userId)
 
 		go func() {
-            for {
+			for {
 				select {
-                case <-userListener.pingTicker.C:
-                    {
-                        log.Println("ping")
-                        c.SetWriteDeadline(time.Now().Add(writePeriod))
-                        if err := c.WriteMessage(
-                            websocket.PingMessage, nil,
-                        ); err != nil {
-                            log.Println("ERROR (ticker)", err)
-                            return
-                        }
-                    }
+				case <-userListener.pingTicker.C:
+					{
+						log.Println("ping")
+						c.SetWriteDeadline(time.Now().Add(writePeriod))
+						if err := c.WriteMessage(
+							websocket.PingMessage, nil,
+						); err != nil {
+							log.Println("ERROR (ticker)", err)
+							return
+						}
+					}
 				case tx, ok := <-userListener.txNotification:
 					{
 						if sendingData, err := json.Marshal(tx); err == nil && ok {
@@ -107,28 +108,28 @@ func InitialiseSocketServer(config Config) *SocketServer {
 			}
 		}()
 
-        c.SetReadDeadline(time.Now().Add(readPeriod))
-        c.SetPongHandler(
-            func(string) error {
-                log.Println("pong")
-                c.SetReadDeadline(time.Now().Add(readPeriod))
-                return nil
-            },
-        )
-        for {
-            _, _, err := c.ReadMessage()
-            if err != nil {
-                log.Println("disconnect:", userId)
-                return
-            }
-        }
+		c.SetReadDeadline(time.Now().Add(readPeriod))
+		c.SetPongHandler(
+			func(string) error {
+				log.Println("pong")
+				c.SetReadDeadline(time.Now().Add(readPeriod))
+				return nil
+			},
+		)
+		for {
+			_, _, err := c.ReadMessage()
+			if err != nil {
+				log.Println("disconnect:", userId)
+				return
+			}
+		}
 
 		userListenersLocker.Lock()
 		delete(userListeners, userId)
 		userListenersLocker.Unlock()
-    }
+	}
 
-    http.HandleFunc("/ws", wsHandle)
+	http.HandleFunc("/ws", wsHandle)
 
 	return &SocketServer{}
 }
@@ -140,8 +141,15 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 		log.Panicln(err)
 	}
 
+	var agentHandler *AgentHandler.AgentHandler
+	err = reg.FetchService(&agentHandler)
+	if err != nil {
+		log.Panicln(err)
+	}
+
 	err = reg.RegisterService(InitialiseSocketServer(Config{
-		Auth: auth,
+		Auth:     auth,
+		txSource: agentHandler.TxNotifications,
 	}))
 	if err != nil {
 		log.Panicln(err)
@@ -150,8 +158,8 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 
 func (*SocketServer) Start() {}
 func (*SocketServer) Status() error {
-    return nil
+	return nil
 }
 func (*SocketServer) Stop() error {
-    return nil
+	return nil
 }

@@ -3,11 +3,12 @@ package database
 import (
 	"context"
 	"github.com/jackc/pgx/v4"
+	"log"
 )
 
-func (d *Database) UsersCreate (
+func (d *Database) UsersCreate(
 	pubKey string,
-) (int,error) {
+) (int, error) {
 	var newUserId int
 	err := d.pool.QueryRow(
 		context.Background(),
@@ -26,12 +27,12 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 	if err != nil {
 		return 0, nil, err
 	}
-	dTx, err := conn.BeginTx(context.Background(), pgx.TxOptions{});
+	dTx, err := conn.BeginTx(context.Background(), pgx.TxOptions{})
 	if err != nil {
 		return 0, nil, err
 	}
 	defer conn.Release()
-	defer dTx.Rollback(context.Background());
+	defer dTx.Rollback(context.Background())
 
 	var newUserId int
 	err = dTx.QueryRow(
@@ -42,6 +43,7 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 	if err != nil {
 		return 0, nil, err
 	}
+	log.Println("tx user created", newUserId)
 
 	newAddressesIds := make([]int, 0)
 	for _, address := range addresses {
@@ -53,8 +55,9 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 			 on n.id = c.network_id and 
                 n.name = $1 and 
                 c.name = $2`,
-			 address.Network, address.Coin,
+			address.Network, address.Coin,
 		).Scan(&coinId)
+		log.Println("tx find coinId", coinId, err)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -67,8 +70,9 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 				user_id,
 				address
 			) values($1,$2,$3) returning id`,
-			coinId,newUserId,address.Address,
+			coinId, newUserId, address.Address,
 		).Scan(&newAddressId)
+		log.Println("tx find newAddressId", newAddressId)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -80,7 +84,7 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 				sync,
 				cursor_id
 			) values($1,$2,$3)`,
-			newAddressId,0,"null",
+			newAddressId, 0, "null",
 		)
 		if err != nil {
 			return 0, nil, err

@@ -10,31 +10,33 @@ import (
 
 func (a *Auth) DecodeAccessToken(tokenString string) (*database.User, bool) {
 	tokenData := strings.Split(tokenString, ".")
-	if len(tokenData) != 2 {
+	if len(tokenData) != 3 {
 		return nil, false
 	}
+	tokenLifeTimeHex, signHex, pubKeyHex := tokenData[0], tokenData[1], tokenData[2]
 
-	validTokenTimeBytes, err  := hex.DecodeString(tokenData[0])
+	validTokenLifeTimeBytes, err := hex.DecodeString(tokenLifeTimeHex)
 	if err != nil {
 		return nil, false
 	}
-	validTokenTime, err := strconv.ParseInt(
-		string(validTokenTimeBytes),
+	validTokenLifeTime, err := strconv.ParseInt(
+		string(validTokenLifeTimeBytes),
 		0,
 		64,
 	)
-	if err != nil || validTokenTime < time.Now().Unix() {
+	if err != nil || validTokenLifeTime < time.Now().Unix() {
 		return nil, false
 	}
 
-	pubKey, ok := VerifySign(tokenData[0], tokenData[1])
+	ok := VerifySign(tokenLifeTimeHex, signHex, pubKeyHex)
 	if !ok {
 		return nil, false
 	}
 
 	user, err := a.usersManager.GetUserByPubKey(
-		hex.EncodeToString(pubKey),
+		pubKeyHex,
 	)
+
 	if err != nil {
 		return nil, false
 	}
