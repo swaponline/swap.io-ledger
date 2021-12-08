@@ -1,7 +1,6 @@
 package registrar
 
 import (
-	"log"
 	"swap.io-ledger/src/database"
 )
 
@@ -14,9 +13,11 @@ func (r *Registrar) RegistrarUser(
 		addresses,
 		func() error {
 			for _, address := range addresses {
-				if address.Coin == "HSN" {
-					log.Println("subscribe on", address.Address)
-					return r.agentHandler.Subscribe(address.Address)
+				// todo: subscribe in goroutine
+				// todo: if error save subscribe and repeat feature
+				if agentHandler, ok := (*r.networks)[address.Network]; ok {
+					err := agentHandler.Subscribe(address.Address)
+					return err
 				}
 			}
 			return nil

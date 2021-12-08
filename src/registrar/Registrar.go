@@ -3,27 +3,27 @@ package registrar
 import (
 	"log"
 	"swap.io-ledger/src/addressSyncer"
-	"swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/managers/UsersManager"
+	"swap.io-ledger/src/networks"
 	"swap.io-ledger/src/serviceRegistry"
 )
 
 type Registrar struct {
-	usersManager *UsersManager.UsersManager
+	usersManager  *UsersManager.UsersManager
 	addressSyncer *AddressSyncer.AddressSyncer
-	agentHandler *AgentHandler.AgentHandler
+	networks      *networks.Networks
 }
 type Config struct {
-	UsersManager *UsersManager.UsersManager
+	UsersManager  *UsersManager.UsersManager
 	AddressSyncer *AddressSyncer.AddressSyncer
-	AgentHandler *AgentHandler.AgentHandler
+	Networks      *networks.Networks
 }
 
 func InitialiseRegistrar(config Config) *Registrar {
 	return &Registrar{
-		usersManager: config.UsersManager,
+		usersManager:  config.UsersManager,
 		addressSyncer: config.AddressSyncer,
-		agentHandler: config.AgentHandler,
+		networks:      config.Networks,
 	}
 }
 
@@ -40,17 +40,17 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 		log.Panicln(err)
 	}
 
-	var agentHandler *AgentHandler.AgentHandler
-	err = reg.FetchService(&agentHandler)
+	var networksInstance *networks.Networks
+	err = reg.FetchService(&networksInstance)
 	if err != nil {
 		log.Panicln(err)
 	}
 
 	err = reg.RegisterService(
 		InitialiseRegistrar(Config{
-			UsersManager: usersManager,
+			UsersManager:  usersManager,
 			AddressSyncer: addressSyncer,
-			AgentHandler: agentHandler,
+			Networks:      networksInstance,
 		}),
 	)
 }

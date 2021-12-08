@@ -2,36 +2,36 @@ package AddressSyncer
 
 import (
 	"log"
-	"swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/managers/AddressSyncStatusManager"
+	"swap.io-ledger/src/networks"
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/txsHandler"
 )
 
 type AddressSyncer struct {
-	agentHandlers map[string]*AgentHandler.AgentHandler
-	txsHandler    *txsHandler.TxsHandler
+	networks                 *networks.Networks
+	txsHandler               *txsHandler.TxsHandler
 	addressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
-	onSyncEvents  chan struct{}
+	onSyncEvents             chan struct{}
 }
 type Config struct {
-	AgentHandlers map[string]*AgentHandler.AgentHandler
-	TxsHandler    *txsHandler.TxsHandler
+	Networks                 *networks.Networks
+	TxsHandler               *txsHandler.TxsHandler
 	AddressSyncStatusManager *AddressSyncStatusManager.AddressSyncStatusManager
-	OnSyncEvents  chan struct{}
+	OnSyncEvents             chan struct{}
 }
 
 func InitialiseAddressSyncer(config Config) *AddressSyncer {
 	return &AddressSyncer{
-		agentHandlers: config.AgentHandlers,
-		txsHandler: config.TxsHandler,
+		networks:                 config.Networks,
+		txsHandler:               config.TxsHandler,
 		addressSyncStatusManager: config.AddressSyncStatusManager,
-		onSyncEvents: config.OnSyncEvents,
+		onSyncEvents:             config.OnSyncEvents,
 	}
 }
 func Register(reg *serviceRegistry.ServiceRegistry) {
-	var hsdHandler *AgentHandler.AgentHandler
-	err := reg.FetchService(&hsdHandler)
+	var networksInstance *networks.Networks
+	err := reg.FetchService(&networksInstance)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -48,20 +48,17 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 		log.Panicln(err)
 	}
 
-	agentHandlers := make(map[string]*AgentHandler.AgentHandler)
-	agentHandlers["Handshake"] = hsdHandler
-
 	err = reg.RegisterService(
 		InitialiseAddressSyncer(Config{
-			AgentHandlers: agentHandlers,
-			TxsHandler: txsHandlerInstance,
+			Networks:                 networksInstance,
+			TxsHandler:               txsHandlerInstance,
 			AddressSyncStatusManager: addressSyncStatusManager,
 		}),
 	)
 }
 
 func (a *AddressSyncer) Start() {
-	addressesSyncStatuses, err := a.addressSyncStatusManager.GetNotSyncAddresses();
+	addressesSyncStatuses, err := a.addressSyncStatusManager.GetNotSyncAddresses()
 	if err != nil {
 		log.Panicln(err)
 	}

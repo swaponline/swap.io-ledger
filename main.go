@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"swap.io-ledger/src/addressSyncer"
-	"swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/auth"
 	"swap.io-ledger/src/config"
 	"swap.io-ledger/src/database"
@@ -15,6 +14,7 @@ import (
 	"swap.io-ledger/src/managers/UsersAdressesManager"
 	"swap.io-ledger/src/managers/UsersManager"
 	"swap.io-ledger/src/managers/UsersSpendsManager"
+	"swap.io-ledger/src/networks"
 	"swap.io-ledger/src/registrar"
 	"swap.io-ledger/src/serviceRegistry"
 	"swap.io-ledger/src/socketServer"
@@ -71,16 +71,7 @@ func main() {
 
 	txsHandler.Register(registry)
 
-	hsd := config.AGENTS[0]
-	err = AgentHandler.Register(
-		registry,
-		hsd.Network,
-		hsd.BaseUrl,
-		hsd.ApiKey,
-	)
-	if err != nil {
-		log.Panicln(err)
-	}
+	networks.Register(registry)
 
 	AddressSyncer.Register(registry)
 	registrar.Register(registry)

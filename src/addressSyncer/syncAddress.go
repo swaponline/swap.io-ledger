@@ -6,6 +6,7 @@ import (
 	"swap.io-ledger/src/database"
 	"time"
 )
+
 func (as *AddressSyncer) SyncNewAddresses(
 	newAddressesIds []int,
 ) {
@@ -23,7 +24,7 @@ func (as *AddressSyncer) SyncNewAddresses(
 func (as *AddressSyncer) SyncAddress(
 	status *database.AddressSyncStatus,
 ) {
-	if agentHandlerInstance, ok := as.agentHandlers[status.Network]; ok {
+	if agentHandlerInstance, ok := (*as.networks)[status.Network]; ok {
 		log.Println(
 			"start sync",
 			status.AddressId,

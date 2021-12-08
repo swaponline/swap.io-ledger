@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/networks"
 	"swap.io-ledger/src/serviceRegistry"
 	"sync"
 	"time"
@@ -141,15 +142,24 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 		log.Panicln(err)
 	}
 
-	var agentHandler *AgentHandler.AgentHandler
-	err = reg.FetchService(&agentHandler)
+	var networksInstance *networks.Networks
+	err = reg.FetchService(&networksInstance)
 	if err != nil {
 		log.Panicln(err)
 	}
 
+	txNotifications := make(chan *AgentHandler.TxNotification)
+	for _, agentHandler := range *networksInstance {
+		go func() {
+			for tx, ok := <-agentHandler.TxNotifications; ok; {
+				txNotifications <- tx
+			}
+		}()
+	}
+
 	err = reg.RegisterService(InitialiseSocketServer(Config{
 		Auth:     auth,
-		txSource: agentHandler.TxNotifications,
+		txSource: txNotifications,
 	}))
 	if err != nil {
 		log.Panicln(err)
