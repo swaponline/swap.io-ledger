@@ -35,8 +35,8 @@ type AddressSyncStatus struct {
 	Address   string
 	Network   string
 }
-type SummaryUserSpends struct {
-	Network string
-	Coin    string
-	value   string
+type UserBalance struct {
+	Network string `json:"network"`
+	Coin    string `json:"coin"`
+	Balance string `json:"balance"`
 }
