@@ -30,6 +30,8 @@ func InitialiseHttpServer(config Config) *HttpServer {
 		usersSpendsManager: config.UsersSpendsManager,
 	}
 	httpServer.handleRegistration()
+	httpServer.handleGetBalances()
+	httpServer.handlePushTx()
 
 	return httpServer
 }
@@ -53,7 +55,7 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 	}
 
 	var userSpendsManager *UsersSpendsManager.UsersSpendsManager
-	err = reg.FetchService(userSpendsManager)
+	err = reg.FetchService(&userSpendsManager)
 	if err != nil {
 		log.Panicln(err)
 	}

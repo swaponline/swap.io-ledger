@@ -2,9 +2,9 @@ package UsersSpendsManager
 
 import "swap.io-ledger/src/database"
 
-func (usm *UsersSpendsManager) GetSummarySpends(userId int) (
-	*database.SummaryUserSpends,
+func (usm *UsersSpendsManager) GetUserBalances(userId int) (
+	[]database.UserBalance,
 	error,
 ) {
-	return usm.database.UserSpendsGetSummaryUserSpends(userId)
+	return usm.database.UserSpendsGetUserBalances(userId)
 }

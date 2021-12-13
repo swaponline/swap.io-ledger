@@ -19,20 +19,20 @@ func (hs *HttpServer) handleGetBalances() {
 			return
 		}
 
-		summaryUserSpends, err := hs.usersSpendsManager.GetSummarySpends(userId)
+		userBalances, err := hs.usersSpendsManager.GetUserBalances(userId)
 		if err != nil {
 			log.Panicln("ERROR", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		summaryUserSpendsBytes, err := json.Marshal(summaryUserSpends)
+		userBalancesBytes, err := json.Marshal(userBalances)
 		if err != nil {
 			log.Println("ERROR", err)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write(summaryUserSpendsBytes)
+		w.Write(userBalancesBytes)
 	})
 }

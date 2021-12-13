@@ -5,7 +5,7 @@ import (
 	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 )
 
-func (d *Database) UserSpendsGetSummaryUserSpends(userId int) (
+func (d *Database) UserSpendsGetUserBalances(userId int) (
 	[]UserBalance,
 	error,
 ) {
