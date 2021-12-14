@@ -8,7 +8,13 @@ func (d *Database) AddressSyncStatusUpdateCursor(
 	addressId int,
 	cursor string,
 ) error {
-	_, err := d.pool.Exec(
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(
 		context.Background(),
 		`update  "Address_sync_status"
 		 set cursor_id = $2
@@ -23,7 +29,13 @@ func (d *Database) AddressSyncStatusUpdateSyncStatus(
 	addressId int,
 	syncStatus int,
 ) error {
-	_, err := d.pool.Exec(
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(
 		context.Background(),
 		`update  "Address_sync_status"
 		 set sync = $2

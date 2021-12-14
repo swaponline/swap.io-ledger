@@ -1,5 +1,7 @@
 package database
 
+import shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
+
 type Tx struct {
 	Id   int
 	Hash string
@@ -36,7 +38,7 @@ type AddressSyncStatus struct {
 	Network   string
 }
 type UserBalance struct {
-	Network string `json:"network"`
-	Coin    string `json:"coin"`
-	Balance string `json:"balance"`
+	Network string             `json:"network"`
+	Coin    string             `json:"coin"`
+	Balance shopspring.Numeric `json:"balance"`
 }

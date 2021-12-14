@@ -9,6 +9,7 @@ func (d *Database) AddressSyncStatusGetById(addressId int) (*AddressSyncStatus, 
 	if err != nil {
 		return nil, err
 	}
+	defer conn.Release()
 
 	addressSyncStatus := new(AddressSyncStatus)
 	err = conn.QueryRow(
@@ -41,7 +42,13 @@ func (d *Database) AddressSyncStatusGetById(addressId int) (*AddressSyncStatus, 
 	return addressSyncStatus, nil
 }
 func (d *Database) AddressSyncStatusGetNotSyncAddresses() ([]AddressSyncStatus, error) {
-	statusesRows, err := d.pool.Query(
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	statusesRows, err := conn.Query(
 		context.Background(),
 		`select 
 			address_id,

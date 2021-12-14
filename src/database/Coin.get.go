@@ -7,8 +7,14 @@ import (
 func (d *Database) CoinGetByName(
 	name string,
 ) (*Coin, error) {
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
 	coin := new(Coin)
-	err := d.pool.QueryRow(
+	err = conn.QueryRow(
 		context.Background(),
 		`select id, name from "Coins" where name = $1`,
 		name,

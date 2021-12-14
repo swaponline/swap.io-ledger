@@ -22,6 +22,7 @@ func (d *Database) UsersGetByPubKey(pubKey string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer conn.Release()
 
 	user := new(User)
 	err = conn.QueryRow(

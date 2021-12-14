@@ -8,8 +8,14 @@ func (d *Database) UsersAddressesGetByCoinIdAndAddress(
 	coinId int,
 	address string,
 ) (*UserAddress, error) {
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
 	userAddress := new(UserAddress)
-	err := d.pool.QueryRow(
+	err = conn.QueryRow(
 		context.Background(),
 		`select 
 			id,

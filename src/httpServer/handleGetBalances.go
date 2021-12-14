@@ -8,7 +8,7 @@ import (
 
 func (hs *HttpServer) handleGetBalances() {
 	http.HandleFunc("/getBalances", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
+		if r.Method != "GET" {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
@@ -32,6 +32,7 @@ func (hs *HttpServer) handleGetBalances() {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(userBalancesBytes)
 	})

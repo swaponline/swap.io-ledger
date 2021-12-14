@@ -9,8 +9,14 @@ func (d *Database) UsersSpendsCreate(
 	txSpendIndex int,
 	userAddressId int,
 	value string,
-) error  {
-	_, err := d.pool.Exec(
+) error {
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(
 		context.Background(),
 		`insert into "Users_spends" 
 			(tx_id, tx_spend_index, user_address_id, value)

@@ -9,8 +9,14 @@ import (
 func (d *Database) UsersCreate(
 	pubKey string,
 ) (int, error) {
+	conn, err := d.pool.Acquire(context.Background())
+	if err != nil {
+		return 0, err
+	}
+	defer conn.Release()
+
 	var newUserId int
-	err := d.pool.QueryRow(
+	err = conn.QueryRow(
 		context.Background(),
 		`insert into "Users" (pub_key) values($1)`,
 		pubKey,
@@ -27,11 +33,12 @@ func (d *Database) UsersCreateByPubKeyAndAddresses(
 	if err != nil {
 		return 0, nil, err
 	}
+	defer conn.Release()
+
 	dTx, err := conn.BeginTx(context.Background(), pgx.TxOptions{})
 	if err != nil {
 		return 0, nil, err
 	}
-	defer conn.Release()
 	defer dTx.Rollback(context.Background())
 
 	var newUserId int

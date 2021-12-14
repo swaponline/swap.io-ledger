@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
 )
 
 func (d *Database) UserSpendsGetUserBalances(userId int) (
@@ -13,6 +12,7 @@ func (d *Database) UserSpendsGetUserBalances(userId int) (
 	if err != nil {
 		return nil, err
 	}
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(), `
 		select n.name, c.name, sum(us.value) from "Users" u 
@@ -34,21 +34,14 @@ func (d *Database) UserSpendsGetUserBalances(userId int) (
 	allUserBalances := make([]UserBalance, 0)
 	for rows.Next() {
 		userBalance := UserBalance{}
-		userBalanceValue := shopspring.Numeric{}
 		err := rows.Scan(
 			&userBalance.Network,
 			&userBalance.Coin,
-			&userBalanceValue,
+			&userBalance.Balance,
 		)
 		if err != nil {
 			return nil, err
 		}
-
-		userBalanceValueBytes, err := userBalanceValue.MarshalJSON()
-		if err != nil {
-			return nil, err
-		}
-		userBalance.Balance = string(userBalanceValueBytes)
 
 		allUserBalances = append(
 			allUserBalances,
