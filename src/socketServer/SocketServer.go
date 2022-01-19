@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"swap.io-ledger/src/database"
-	"swap.io-ledger/src/networks"
-	"swap.io-ledger/src/serviceRegistry"
 	"sync"
 	"time"
 
+	"swap.io-ledger/src/database"
+	"swap.io-ledger/src/networks"
+	"swap.io-ledger/src/serviceRegistry"
+
 	"github.com/gorilla/websocket"
-	"swap.io-ledger/src/agentHandler"
+	AgentHandler "swap.io-ledger/src/agentHandler"
 	"swap.io-ledger/src/auth"
 )
 
@@ -97,6 +98,7 @@ func InitialiseSocketServer(config Config) *SocketServer {
 				case tx, ok := <-userListener.txNotification:
 					{
 						if sendingData, err := json.Marshal(tx); err == nil && ok {
+							c.SetWriteDeadline(time.Now().Add(writePeriod))
 							if err := c.WriteMessage(
 								websocket.TextMessage,
 								sendingData,
@@ -121,8 +123,9 @@ func InitialiseSocketServer(config Config) *SocketServer {
 			_, _, err := c.ReadMessage()
 			if err != nil {
 				log.Println("disconnect:", userId)
-				return
+				break
 			}
+			c.SetReadDeadline(time.Now().Add(readPeriod))
 		}
 
 		userListenersLocker.Lock()
@@ -150,11 +153,15 @@ func Register(reg *serviceRegistry.ServiceRegistry) {
 
 	txNotifications := make(chan *AgentHandler.TxNotification)
 	for _, agentHandler := range *networksInstance {
-		go func() {
-			for tx, ok := <-agentHandler.TxNotifications; ok; {
+		go func(agent *AgentHandler.AgentHandler) {
+			for {
+				tx, ok := <-agent.TxNotifications
+				if !ok {
+					break
+				}
 				txNotifications <- tx
 			}
-		}()
+		}(agentHandler)
 	}
 
 	err = reg.RegisterService(InitialiseSocketServer(Config{

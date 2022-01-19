@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"swap.io-ledger/src/utils"
 )
 
 func (hs *HttpServer) handleGetBalances() {
@@ -32,7 +33,7 @@ func (hs *HttpServer) handleGetBalances() {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 
-		w.Header().Set("Content-Type", "application/json")
+		utils.SetContentTypeJson(w)
 		w.WriteHeader(http.StatusOK)
 		w.Write(userBalancesBytes)
 	})

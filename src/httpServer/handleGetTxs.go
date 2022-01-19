@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"swap.io-ledger/src/utils"
 )
 
 func (hs *HttpServer) handleGetTxs() {
@@ -33,6 +34,7 @@ func (hs *HttpServer) handleGetTxs() {
 			return
 		}
 
+		utils.SetContentTypeJson(w)
 		w.WriteHeader(http.StatusOK)
 		w.Write(userTxsBytes)
 	})

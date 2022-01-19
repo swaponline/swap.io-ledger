@@ -3,9 +3,10 @@ package AgentHandler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
+
+	"github.com/gorilla/websocket"
 	"swap.io-ledger/src/txsHandler"
 )
 
@@ -53,10 +54,10 @@ func (a *AgentHandler) runWatch() {
 			break
 		}
 
-		log.Println("tx receive", tx.Id, nonTx.Hash, participateUserIdsMap)
 		a.TxNotifications <- &TxNotification{
 			Tx:       tx,
 			UsersIds: participateUserIdsMap,
 		}
+		log.Println("tx receive", tx.Id, nonTx.Hash, participateUserIdsMap)
 	}
 }
